@@ -105,6 +105,16 @@ resource "upcloud_firewall_rules" "nodes" {
   }
 
   firewall_rule {
+    action            = "accept"
+    comment           = "Allow Tailscale"
+    source_port_start = "41641"
+    source_port_end   = "41641"
+    direction         = "in"
+    family            = "IPv4"
+    protocol          = "udp"
+  }
+
+  firewall_rule {
     action    = "drop"
     direction = "in"
   }

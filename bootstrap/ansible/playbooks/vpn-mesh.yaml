@@ -1,0 +1,8 @@
+- name: vpc/vpn mesh
+  hosts: vpc
+  roles:
+    - role: artis3n.tailscale
+      vars:
+        tailscale_authkey: "{{ lookup('env', 'TAILSCALE_KEY') }}"
+        tailscale_oauth_ephemeral: false
+        tailscale_oauth_preauthorized: true

@@ -1,15 +1,2 @@
-wireguard_endpoint: "{{ ansible_host }}"
-wireguard_port: 55555
-wireguard_allowed_ips: ""
-wireguard_persistent_keepalive: "30"
-wireguard_dns: "1.1.1.1"
-wireguard_preup:
-  - ...
-wireguard_predown:
-  - ...
-wireguard_postup:
-  - ...
-wireguard_postdown:
-  - ...
-wireguard_save_config: "true"
-wireguard_interface_restart: true
+tailscale_args: "--ssh  --advertise-exit-node"
+tailscale_tags: ["homelab"]
