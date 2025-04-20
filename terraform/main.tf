@@ -106,9 +106,19 @@ resource "upcloud_firewall_rules" "nodes" {
 
   firewall_rule {
     action            = "accept"
-    comment           = "Allow Tailscale"
+    comment           = "Allow Tailscale wireguard proto back"
     source_port_start = "41641"
     source_port_end   = "41641"
+    direction         = "in"
+    family            = "IPv4"
+    protocol          = "udp"
+  }
+
+  firewall_rule {
+    action            = "accept"
+    comment           = "Allow Tailscale STUN proto back"
+    source_port_start = "3478"
+    source_port_end   = "3478"
     direction         = "in"
     family            = "IPv4"
     protocol          = "udp"
