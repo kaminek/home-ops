@@ -10,3 +10,7 @@ all:
                 node0: # primary
                 node1:
                 node2:
+        local:
+          hosts:
+            localhost:
+              ansible_connection: local
