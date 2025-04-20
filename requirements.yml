@@ -21,4 +21,4 @@ roles:
     version: 17.1.0
   - name: artis3n.tailscale
     src: https://github.com/artis3n/ansible-role-tailscale.git
-    version: 4.6.0
+    version: 5.0.1
