@@ -16,51 +16,51 @@ resource "upcloud_network" "private_network" {
   }
 }
 
-resource "upcloud_server" "node" {
-  count = local.fleet_count
-
-  plan     = local.flavour
-  hostname = "node${count.index}"
-  zone     = local.region
-  metadata = true
-  firewall = true
-
-  template {
-    storage = "01000000-0000-4000-8000-000030240200" # Ubuntu 24.02
-    title   = "node${count.index}-rootfs"
-    size    = 80
-    encrypt = true
-    tier    = "standard"
-  }
-
-  network_interface {
-    ip_address_family = "IPv4"
-    type              = "public"
-  }
-
-  network_interface {
-    ip_address_family = "IPv6"
-    type              = "public"
-  }
-
-  network_interface {
-    type                = "private"
-    network             = upcloud_network.private_network.id
-    ip_address          = "10.10.0.1${count.index}"
-    ip_address_family   = "IPv4"
-    source_ip_filtering = false
-  }
-
-  login {
-    keys = data.github_user.kaminek.ssh_keys
-  }
-
-  labels = {
-    cluster = "homelab"
-    env     = "prod"
-    node    = "node${count.index}"
-  }
-}
+# resource "upcloud_server" "node" {
+#   count = local.fleet_count
+#
+#   plan     = local.flavour
+#   hostname = "node${count.index}"
+#   zone     = local.region
+#   metadata = true
+#   firewall = true
+#
+#   template {
+#     storage = "01000000-0000-4000-8000-000030240200" # Ubuntu 24.02
+#     title   = "node${count.index}-rootfs"
+#     size    = 80
+#     encrypt = true
+#     tier    = "standard"
+#   }
+#
+#   network_interface {
+#     ip_address_family = "IPv4"
+#     type              = "public"
+#   }
+#
+#   network_interface {
+#     ip_address_family = "IPv6"
+#     type              = "public"
+#   }
+#
+#   network_interface {
+#     type                = "private"
+#     network             = upcloud_network.private_network.id
+#     ip_address          = "10.10.0.1${count.index}"
+#     ip_address_family   = "IPv4"
+#     source_ip_filtering = false
+#   }
+#
+#   login {
+#     keys = data.github_user.kaminek.ssh_keys
+#   }
+#
+#   labels = {
+#     cluster = "homelab"
+#     env     = "prod"
+#     node    = "node${count.index}"
+#   }
+# }
 
 resource "upcloud_server_group" "main" {
   title                = "cluster"
