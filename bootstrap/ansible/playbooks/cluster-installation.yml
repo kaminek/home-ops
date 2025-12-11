@@ -15,11 +15,11 @@
         path: "/etc/rancher/k3s/config.yaml"
       register: k3s_check_installed
 
-    - name: Set manifest facts
-      ansible.builtin.set_fact:
-        k3s_server_manifests_templates: []
-        k3s_server_manifests_urls: []
-      when: k3s_check_installed.stat.exists
+    # - name: Set manifest facts
+    #   ansible.builtin.set_fact:
+    #     k3s_server_manifests_templates: []
+    #     k3s_server_manifests_urls: []
+    #   when: k3s_check_installed.stat.exists
 
     - name: Install Kubernetes
       ansible.builtin.include_role:
@@ -56,17 +56,6 @@
       ansible.builtin.copy:
         src: ~/.kube/config
         dest: ~/.kube/config.bak
-
-    - name: Add iptables NAT rule for ingress
-      iptables:
-        chain: PREROUTING
-        table: nat
-        in_interface: eth0
-        jump: DNAT
-        protocol: tcp
-        destination_port: 443
-        to_destination: 10.32.0.245
-        state: present
 
     - name: Merge kubeconfig files
       delegate_to: localhost

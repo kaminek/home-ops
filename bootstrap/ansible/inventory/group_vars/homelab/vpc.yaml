@@ -1,2 +1,0 @@
-tailscale_args: "--ssh  --advertise-exit-node"
-tailscale_tags: ["homelab"]

@@ -6,6 +6,16 @@ locals {
   cloudflare_zone_id = data.sops_file.secrets.data.cloudflare_zone_id
 }
 
+resource "upcloud_network" "private_network" {
+  name = "private-network"
+  zone = local.region
+  ip_network {
+    address = "10.10.0.0/24"
+    dhcp    = false
+    family  = "IPv4"
+  }
+}
+
 resource "upcloud_server" "node" {
   count = local.fleet_count
 
@@ -31,6 +41,14 @@ resource "upcloud_server" "node" {
   network_interface {
     ip_address_family = "IPv6"
     type              = "public"
+  }
+
+  network_interface {
+    type                = "private"
+    network             = upcloud_network.private_network.id
+    ip_address          = "10.10.0.1${count.index}"
+    ip_address_family   = "IPv4"
+    source_ip_filtering = false
   }
 
   login {

@@ -26,7 +26,7 @@
         - name: Add IP address of all hosts to all hosts
           lineinfile:
             dest: /etc/hosts
-            regexp: '.*{{ item }}$'
+            regexp: ".*{{ item }}$"
             line: "{{ hostvars[item].ansible_eth1.ipv4.address }} {{item}}"
             state: present
           when: hostvars[item].ansible_eth1.ipv4.address is defined
@@ -60,11 +60,6 @@
                 name: "{{ os_packages | default([]) }}"
                 state: present
                 update_cache: true
-
-            - name: pip Packages | Install required packages
-              ansible.builtin.pip:
-                name: "{{ item }}"
-              loop: "{{ pip_packages | default([]) }}"
 
     - name: System Configuration
       block:

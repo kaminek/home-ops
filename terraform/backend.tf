@@ -2,7 +2,7 @@
 #   backend "remote" {
 #     organization = "kaminek"
 #     workspaces {
-#       name = "infrastructure"
+#       name = "home-ops"
 #     }
 #   }
 # }

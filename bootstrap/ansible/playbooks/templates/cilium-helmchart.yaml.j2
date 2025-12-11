@@ -9,54 +9,42 @@ spec:
   # renovate: datasource=helm
   repo: https://helm.cilium.io/
   chart: cilium
-  version: 1.14.2
+  version: 1.16.6
   targetNamespace: kube-system
   bootstrap: true
   timeout: 900s
   valuesContent: |-
-    autoDirectNodeRoutes: true
+    # Cilium's WireGuard encryption is enabled for transparent encryption of all node-to-node traffic.
+    encryption:
+      enabled: true
+      type: wireguard
+    autoDirectNodeRoutes: false
+    bandwidthManager:
+      enabled: true
+      bbr: false
     bpf:
       masquerade: true
+      tproxy: true
     bgp:
       enabled: false
     cluster:
-      name: kubernetes
-      id: 1
-    containerRuntime:
-      integration: containerd
-      socketPath: /var/run/k3s/containerd/containerd.sock
+      name: homelab
+      id: 0
+    enableRuntimeDeviceDetection: true
     endpointRoutes:
       enabled: true
+    envoy:
+      enabled: false
     hubble:
-      metrics:
-        enabled:
-          - dns:query;ignoreAAAA
-          - drop
-          - tcp
-          - flow
-          - icmp
-          - http
-
-      ui:
-        enabled: true
-        replicas: 1
-        ingress:
-          enabled: false
-
-      relay:
-        enabled: true
-        ipam:
-          mode: kubernetes
-
+      enabled: false
     ipam:
-      mode: "cluster-pool"
-      operator:
-        clusterPoolIPv4PodCIDRList: "{{ k3s_server['service-cidr'] }}"
-        clusterPoolIPv4MaskSize: 24
-        clusterPoolIPv6PodCIDRList: ["fd00::/104"]
-        clusterPoolIPv6MaskSize: 120
-    ipv4NativeRoutingCIDR: "{{ k3s_server['cluster-cidr'] }}"
-    k8sServiceHost: "{{ k3s_cluster_fqdn }}"
+      mode: kubernetes
+    ipv4:
+      enabled: true
+    ipv4NativeRoutingCIDR: 10.42.0.0/16
+    ipv6:
+      enabled: false
+    k8sServiceHost: 127.0.0.1
     k8sServicePort: 6443
     kubeProxyReplacement: true
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
@@ -70,12 +58,24 @@ spec:
       mode: dsr
     localRedirectPolicy: true
     operator:
-      replicas: 1
       rollOutPods: true
     rollOutCiliumPods: true
+    routingMode: native
     securityContext:
-      privileged: true
-    tunnel: disabled
-
-    prometheus:
-      enabled: true
+      capabilities:
+        ciliumAgent:
+          - CHOWN
+          - KILL
+          - NET_ADMIN
+          - NET_RAW
+          - IPC_LOCK
+          - SYS_ADMIN
+          - SYS_RESOURCE
+          - DAC_OVERRIDE
+          - FOWNER
+          - SETGID
+          - SETUID
+        cleanCiliumState:
+          - NET_ADMIN
+          - SYS_ADMIN
+          - SYS_RESOURCE

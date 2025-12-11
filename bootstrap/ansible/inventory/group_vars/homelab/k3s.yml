@@ -5,7 +5,7 @@
 # https://rancher.com/docs/k3s/latest/en/installation/install-options/server-config/
 
 # renovate: datasource=github-releases depName=k3s-io/k3s
-k3s_release_version: "v1.28.2+k3s1"
+k3s_release_version: "v1.33.0+k3s1"
 
 # (bool) Install using hard links rather than symbolic links.
 k3s_install_hard_links: true

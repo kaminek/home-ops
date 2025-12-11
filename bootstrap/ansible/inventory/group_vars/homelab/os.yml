@@ -6,10 +6,8 @@ os_packages:
   - python3-pip
   - python3-yaml
   - python3-netaddr
-  - helm
-pip_packages:
-  - selinux
-  - kubernetes
+  - python3-kubernetes
+  - python3-selinux
 # os hardening
 os_selinux_state: permissive
 os_selinux_policy: targeted
