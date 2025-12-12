@@ -6,7 +6,7 @@ metadata:
   name: grafana-alloy
 spec:
   interval: 30m
-  timeout: 1m
+  timeout: 5m
   chart:
     spec:
       chart: k8s-monitoring
