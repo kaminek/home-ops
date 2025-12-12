@@ -1,8 +1,8 @@
-# terraform {
-#   backend "remote" {
-#     organization = "kaminek"
-#     workspaces {
-#       name = "home-ops"
-#     }
-#   }
-# }
+terraform {
+  backend "remote" {
+    organization = "kaminek"
+    workspaces {
+      name = "home-ops"
+    }
+  }
+}
