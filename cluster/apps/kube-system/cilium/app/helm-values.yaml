@@ -2,7 +2,7 @@
 encryption:
   enabled: true
   type: wireguard
-autoDirectNodeRoutes: false
+autoDirectNodeRoutes: true
 bandwidthManager:
   enabled: true
   bbr: false
