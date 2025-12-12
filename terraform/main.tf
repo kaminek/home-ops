@@ -1,5 +1,5 @@
 locals {
-  fleet_count        = 1
+  fleet_count        = 0
   flavour            = "DEV-2xCPU-8GB"
   region             = "uk-lon1"
   cloudflare_zone_id = data.sops_file.secrets.data.cloudflare_zone_id
@@ -10,7 +10,7 @@ resource "upcloud_network" "private_network" {
   zone = local.region
   ip_network {
     address            = "10.10.0.0/24"
-    dhcp               = false
+    dhcp               = true
     dhcp_default_route = false
     family             = "IPv4"
   }
