@@ -3,11 +3,11 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
-  name: infrastructure
+  name: home-ops
   namespace: flux-system
 spec:
   interval: 30m
-  url: https://github.com/kaminek/infrastructure
+  url: https://github.com/kaminek/home-ops
   ref:
     branch: main
   ignore: |
@@ -29,7 +29,7 @@ spec:
   wait: false
   sourceRef:
     kind: GitRepository
-    name: infrastructure
+    name: home-ops
   decryption:
     provider: sops
     secretRef:

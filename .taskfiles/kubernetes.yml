@@ -11,7 +11,7 @@ tasks:
     desc: Install Flux into cluster
     cmds:
       - kubectl apply --server-side --kustomize {{.K8S_BOOTSTRAP_DIR}}/flux
-      - cat {{.SOPS_AGE_KEY_FILE}} | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
+      - cat {{.SOPS_AGE_KEY_FILE}} | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin --dry-run=client -o yaml | kubectl apply -f -
       - sops --decrypt --in-place {{.CLUSTER_DIR}}/flux/vars/cluster-secrets.sops.yaml
       - kubectl apply --kustomize {{.CLUSTER_DIR}}/flux/config
       - kubectl apply --kustomize {{.CLUSTER_DIR}}/flux/vars
@@ -27,5 +27,5 @@ tasks:
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
     cmds:
-      - flux reconcile -n flux-system source git infrastructure
+      - flux reconcile -n flux-system source git home-ops
       - flux reconcile -n flux-system kustomization flux-cluster

@@ -9,12 +9,8 @@ vars:
   K8S_BOOTSTRAP_DIR: "{{.PROJECT_DIR}}/bootstrap/kubernetes"
   TERRAFORM_DIR: "{{.PROJECT_DIR}}/bootstrap/terraform"
 
-env:
-  KUBECONFIG: "{{.CLUSTER_DIR}}/kubeconfig"
-
 includes:
   ansible: .taskfiles/ansible.yml
   kubernetes: .taskfiles/kubernetes.yml
   precommit: .taskfiles/precommit.yml
-  terraform: .taskfiles/terraform.yml
   sops: .taskfiles/sops.yml

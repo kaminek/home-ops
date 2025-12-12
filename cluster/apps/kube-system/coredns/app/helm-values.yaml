@@ -1,6 +1,6 @@
 ---
 fullnameOverride: coredns
-# k8sAppLabelOverride: kube-dns
+k8sAppLabelOverride: kube-dns
 replicaCount: 2
 prometheus:
   service:

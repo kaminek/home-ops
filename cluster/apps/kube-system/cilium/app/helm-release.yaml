@@ -67,7 +67,7 @@ spec:
       mode: "cluster-pool" #  TODO: check the doc
       operator:
         clusterPoolIPv4PodCIDRList: ["10.43.0.0/16"]
-        clusterPoolIPv4MaskSize: 24
+        clusterPoolIPv4MaskSize: 16
         clusterPoolIPv6PodCIDRList: ["fd00::/104"]
         clusterPoolIPv6MaskSize: 120
     operator:

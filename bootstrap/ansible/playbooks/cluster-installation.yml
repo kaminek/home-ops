@@ -15,11 +15,11 @@
         path: "/etc/rancher/k3s/config.yaml"
       register: k3s_check_installed
 
-    # - name: Set manifest facts
-    #   ansible.builtin.set_fact:
-    #     k3s_server_manifests_templates: []
-    #     k3s_server_manifests_urls: []
-    #   when: k3s_check_installed.stat.exists
+    - name: Set manifest facts
+      ansible.builtin.set_fact:
+        k3s_server_manifests_templates: []
+        k3s_server_manifests_urls: []
+      when: k3s_check_installed.stat.exists
 
     - name: Install Kubernetes
       ansible.builtin.include_role:
@@ -80,9 +80,3 @@
       loop:
         - { name: cilium, kind: HelmChart, namespace: kube-system }
         - { name: coredns, kind: HelmChart, namespace: kube-system }
-        - { name: policy, kind: CiliumL2AnnouncementPolicy }
-        - { name: pool, kind: CiliumLoadBalancerIPPool }
-        - { name: podmonitors.monitoring.coreos.com, kind: CustomResourceDefinition }
-        - { name: prometheusrules.monitoring.coreos.com, kind: CustomResourceDefinition }
-        - { name: scrapeconfigs.monitoring.coreos.com, kind: CustomResourceDefinition }
-        - { name: servicemonitors.monitoring.coreos.com, kind: CustomResourceDefinition }

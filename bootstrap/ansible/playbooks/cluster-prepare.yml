@@ -27,9 +27,9 @@
           lineinfile:
             dest: /etc/hosts
             regexp: ".*{{ item }}$"
-            line: "{{ hostvars[item].ansible_eth1.ipv4.address }} {{item}}"
+            line: "{{ hostvars[item].ansible_eth2.ipv4.address }} {{item}}"
             state: present
-          when: hostvars[item].ansible_eth1.ipv4.address is defined
+          when: hostvars[item].ansible_eth2.ipv4.address is defined
           with_items: "{{ groups.all }}"
 
         - name: Networking | Disable DNS from DHCP
