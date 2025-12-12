@@ -28,7 +28,8 @@
   "ignorePaths": ["**/*.sops.*", "**/.archive/**", "**/resources/**"],
   "flux": {
     "fileMatch": [
-      "(^|/)cluster/.+\\.ya?ml(?:\\.j2)?$"
+      "(^|/)cluster/.+\\.ya?ml(?:\\.j2)?$",
+      "(^|/)bootstrap/.+\\.ya?ml(?:\\.j2)?$"
     ]
   },
   "helm-values": {

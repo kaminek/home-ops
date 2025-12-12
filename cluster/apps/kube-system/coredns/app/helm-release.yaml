@@ -25,3 +25,9 @@ spec:
   valuesFrom:
     - kind: ConfigMap
       name: coredns-helm-values
+  values:
+    prometheus:
+      service:
+        enabled: true
+      monitor:
+        enabled: true

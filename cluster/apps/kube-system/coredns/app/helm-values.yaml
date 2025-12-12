@@ -2,11 +2,6 @@
 fullnameOverride: coredns
 k8sAppLabelOverride: kube-dns
 replicaCount: 2
-prometheus:
-  service:
-    enabled: true
-  monitor:
-    enabled: true
 service:
   clusterIP: 10.43.0.10
   name: kube-dns

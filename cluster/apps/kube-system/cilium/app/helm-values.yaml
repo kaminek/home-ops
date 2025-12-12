@@ -1,4 +1,7 @@
 ---
+encryption:
+  enabled: true
+  type: wireguard
 autoDirectNodeRoutes: false
 bandwidthManager:
   enabled: true
@@ -23,7 +26,10 @@ envoy:
 hubble:
   enabled: false
 ipam:
-  mode: kubernetes
+  mode: cluster-pool
+  operator:
+    clusterPoolIPv4PodCIDRList: ["10.42.0.0/16"]
+    clusterPoolIPv4MaskSize: 24
 ipv4:
   enabled: true
 ipv4NativeRoutingCIDR: 10.42.0.0/16
@@ -43,6 +49,7 @@ loadBalancer:
   mode: dsr
 localRedirectPolicy: true
 operator:
+  replicas: 1
   rollOutPods: true
 rollOutCiliumPods: true
 routingMode: native
