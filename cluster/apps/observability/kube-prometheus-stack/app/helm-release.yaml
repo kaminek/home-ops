@@ -123,6 +123,11 @@ spec:
           - name: add-cluster-label
             default: true
             metricRelabelings:
+              # Preserve CNPG cluster label before overwriting
+              - action: replace
+                sourceLabels: [cluster]
+                targetLabel: cnpg_cluster
+                regex: (.+)
               - action: replace
                 targetLabel: cluster
                 replacement: homelab

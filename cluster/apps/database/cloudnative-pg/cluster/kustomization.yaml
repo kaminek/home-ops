@@ -11,3 +11,9 @@ resources:
   - ./scheduled-backup.yaml
   - ./prometheusrule.yaml
   - ./grafanadashboard.yaml
+configMapGenerator:
+  - name: cnpg-dashboard
+    files:
+      - dashboard.json
+    options:
+      disableNameSuffixHash: true
