@@ -18,4 +18,4 @@ roles:
     version: v3.4.4
   - name: githubixx.ansible_role_wireguard
     src: https://github.com/githubixx/ansible-role-wireguard.git
-    version: 17.1.0
+    version: 18.2.0
