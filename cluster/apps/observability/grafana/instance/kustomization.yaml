@@ -7,4 +7,3 @@ resources:
   - ./grafanadatasource.yaml
   - ./servicemonitor.yaml
   - ./ingress.yaml
-  - ./dashboards.yaml
