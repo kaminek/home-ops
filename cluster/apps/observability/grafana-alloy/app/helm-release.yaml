@@ -71,6 +71,10 @@ spec:
     profiling:
       enabled: false
 
+    # Alloy collectors
+    alloy-logs:
+      enabled: true
+
     # Disable bundled components
     kube-state-metrics:
       enabled: false
