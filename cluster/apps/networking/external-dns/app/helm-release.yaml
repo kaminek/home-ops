@@ -46,6 +46,7 @@ spec:
       - --ignore-ingress-tls-spec
       - --ingress-class=external
       - --default-targets=cluster.kaminek.me
+      - --force-default-targets
     policy: sync
     sources: ["crd", "ingress"]
     txtOwnerId: default
