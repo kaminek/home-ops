@@ -10,3 +10,4 @@ resources:
   - ./vaultwarden-database.yaml
   - ./scheduled-backup.yaml
   - ./prometheusrule.yaml
+  - ./grafanadashboard.yaml
