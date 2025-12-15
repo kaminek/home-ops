@@ -58,6 +58,11 @@ spec:
           namespace: observability
         metrics:
           enabled: false
+        logs:
+          enabled: false
+      - name: internal-prometheus
+        type: prometheus
+        url: http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/write
 
     # Features
     podLogs:
@@ -85,6 +90,7 @@ spec:
       destinations:
         - grafana-cloud-logs
         - grafana-cloud-traces
+        - internal-prometheus
       receivers:
         grpc:
           enabled: true
