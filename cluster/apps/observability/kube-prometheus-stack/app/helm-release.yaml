@@ -88,9 +88,9 @@ spec:
     kubeControllerManager:
       enabled: true
       endpoints: &control-plane
-        - 10.32.0.100
-        - 10.32.0.101
-        - 10.32.0.102
+        - 10.10.0.10
+        - 10.10.0.11
+        - 10.10.0.12
     kubeEtcd:
       enabled: true
       endpoints: *control-plane
