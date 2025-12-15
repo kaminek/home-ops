@@ -10,7 +10,7 @@ spec:
   chart:
     spec:
       chart: k8s-monitoring
-      version: 1.6.48
+      version: 3.6.2
       sourceRef:
         kind: HelmRepository
         name: grafana
@@ -31,45 +31,52 @@ spec:
   values:
     cluster:
       name: homelab
-    kube-state-metrics:
+
+    # Destinations (replaces externalServices)
+    destinations:
+      - name: grafana-cloud-logs
+        type: loki
+        url: https://logs-prod-gb-south-0.grafana.net/loki/api/v1/push
+        auth:
+          type: basic
+          usernameKey: grafana-loki-user
+          passwordKey: grafana-loki-password
+        secret:
+          create: false
+          name: grafana-credentials-secret
+          namespace: observability
+
+    # Pod logs (only feature enabled)
+    podLogs:
+      enabled: true
+      destinations:
+        - grafana-cloud-logs
+      extraStageBlocks: |-
+        stage.limit {
+          rate  = 500
+          burst = 800
+        }
+
+    # Disabled features
+    clusterMetrics:
       enabled: false
-    opencost:
+    clusterEvents:
+      enabled: false
+    nodeLogs:
+      enabled: false
+    applicationObservability:
+      enabled: false
+    autoInstrumentation:
+      enabled: false
+    profiling:
+      enabled: false
+
+    # Disable bundled components
+    kube-state-metrics:
       enabled: false
     prometheus-node-exporter:
       enabled: false
     prometheus-operator-crds:
       enabled: false
-    prometheus-windows-exporter:
+    opencost:
       enabled: false
-    externalServices:
-      loki:
-        secret:
-          create: false
-          name: grafana-credentials-secret
-          namespace: observability
-        basicAuth:
-          usernameKey: grafana-loki-user
-          passwordKey: grafana-loki-password
-        hostKey: grafana-loki-endpoint
-    logs:
-      pod_logs:
-        extraStageBlocks: |-
-          stage.limit {
-            rate  = 500
-            burst = 800
-          }
-      journal:
-        enabled: false
-    metrics:
-      enabled: false
-    profiles:
-      ebpf:
-        enabled: false
-    receivers:
-      deployGrafanaAgentService: false
-      grafanaCloudMetrics:
-        enabled: false
-      grpc:
-        enabled: false
-      http:
-        enabled: false
