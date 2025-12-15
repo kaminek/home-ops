@@ -32,7 +32,7 @@ spec:
     cluster:
       name: homelab
 
-    # Destinations (replaces externalServices)
+    # Destinations
     destinations:
       - name: grafana-cloud-logs
         type: loki
@@ -45,8 +45,19 @@ spec:
           create: false
           name: grafana-credentials-secret
           namespace: observability
+      - name: grafana-cloud-traces
+        type: otlp
+        url: https://tempo-prod-06-prod-gb-south-0.grafana.net/tempo
+        auth:
+          type: basic
+          usernameKey: grafana-tempo-user
+          passwordKey: grafana-tempo-password
+        secret:
+          create: false
+          name: grafana-credentials-secret
+          namespace: observability
 
-    # Pod logs (only feature enabled)
+    # Features
     podLogs:
       enabled: true
       destinations:
@@ -57,25 +68,44 @@ spec:
           burst = 800
         }
 
-    # Disabled features
-    clusterMetrics:
-      enabled: false
-    clusterEvents:
-      enabled: false
     nodeLogs:
-      enabled: false
+      enabled: true
+      destinations:
+        - grafana-cloud-logs
+
+    clusterEvents:
+      enabled: true
+      destinations:
+        - grafana-cloud-logs
+
     applicationObservability:
+      enabled: true
+      destinations:
+        - grafana-cloud-logs
+        - grafana-cloud-traces
+      receivers:
+        grpc:
+          enabled: true
+          port: 4317
+        http:
+          enabled: true
+          port: 4318
+
+    # Collectors
+    alloy-logs:
+      enabled: true
+    alloy-singleton:
+      enabled: true
+    alloy-receiver:
+      enabled: true
+
+    # Disabled
+    clusterMetrics:
       enabled: false
     autoInstrumentation:
       enabled: false
     profiling:
       enabled: false
-
-    # Alloy collectors
-    alloy-logs:
-      enabled: true
-
-    # Disable bundled components
     kube-state-metrics:
       enabled: false
     prometheus-node-exporter:
