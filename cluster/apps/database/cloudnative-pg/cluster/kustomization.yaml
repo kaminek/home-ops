@@ -5,6 +5,8 @@ kind: Kustomization
 resources:
   - ./secret.sops.yaml
   - ./vaultwarden-secret.sops.yaml
+  - ./backup-secret.sops.yaml
   - ./main.yaml
   - ./vaultwarden-database.yaml
+  - ./scheduled-backup.yaml
   - ./prometheusrule.yaml

@@ -1,5 +1,4 @@
 ---
-# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/postgresql.cnpg.io/cluster_v1.json
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
@@ -35,6 +34,26 @@ spec:
 
   monitoring:
     enablePodMonitor: true
+
+  # Backup to S3-compatible storage (Cloudflare R2)
+  backup:
+    barmanObjectStore:
+      destinationPath: s3://cnpg/main
+      endpointURL: https://47dc2e8ccaf9538255dd55cb3fc09e7c.r2.cloudflarestorage.com
+      s3Credentials:
+        accessKeyId:
+          name: cnpg-backup-secret
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: cnpg-backup-secret
+          key: SECRET_ACCESS_KEY
+      wal:
+        compression: gzip
+        encryption: AES256
+      data:
+        compression: gzip
+        encryption: AES256
+    retentionPolicy: "30d"
 
   managed:
     roles:
