@@ -163,7 +163,7 @@ resource "cloudflare_dns_record" "nodes" {
   content = upcloud_server.node[count.index].network_interface[0].ip_address
   type    = "A"
   proxied = false
-  ttl     = "3600"
+  ttl     = 60
 }
 
 resource "cloudflare_dns_record" "cluster" {
@@ -175,5 +175,5 @@ resource "cloudflare_dns_record" "cluster" {
   content = upcloud_server.node[count.index].network_interface[0].ip_address
   type    = "A"
   proxied = false
-  ttl     = "3600"
+  ttl     = 60
 }
