@@ -92,12 +92,13 @@ spec:
         - grafana-cloud-traces
         - internal-prometheus
       receivers:
-        grpc:
-          enabled: true
-          port: 4317
-        http:
-          enabled: true
-          port: 4318
+        otlp:
+          grpc:
+            enabled: true
+            port: 4317
+          http:
+            enabled: true
+            port: 4318
 
     # Collectors
     alloy-logs:
