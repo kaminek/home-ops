@@ -6,4 +6,5 @@ resources:
   - ./secret.sops.yaml
   - ./vaultwarden-secret.sops.yaml
   - ./main.yaml
+  - ./vaultwarden-database.yaml
   - ./prometheusrule.yaml

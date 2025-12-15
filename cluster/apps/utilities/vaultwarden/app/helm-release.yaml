@@ -63,7 +63,7 @@ spec:
         className: external
         annotations:
           external-dns.alpha.kubernetes.io/target: cluster.kaminek.me
-          cert-manager.io/cluster-issuer: letsencrypt-prod
+          cert-manager.io/cluster-issuer: letsencrypt-production
         hosts:
           - host: vaultwarden.kaminek.me
             paths:
