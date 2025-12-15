@@ -25,6 +25,19 @@ spec:
   values:
     controllers:
       main:
+        pod:
+          affinity:
+            podAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 100
+                  podAffinityTerm:
+                    labelSelector:
+                      matchLabels:
+                        cnpg.io/cluster: main
+                        cnpg.io/instanceRole: primary
+                    topologyKey: kubernetes.io/hostname
+                    namespaces:
+                      - database
         containers:
           main:
             image:
