@@ -107,6 +107,9 @@ spec:
       enabled: true
     alloy-receiver:
       enabled: true
+      controller:
+        type: deployment
+        replicas: 1
 
     # Disabled
     clusterMetrics:
