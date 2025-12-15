@@ -1,0 +1,86 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vaultwarden
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.6.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: vaultwarden/server
+              tag: 1.32.7
+            env:
+              DOMAIN: https://vaultwarden.kaminek.me
+              DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: vaultwarden-secret
+                    key: DATABASE_URL
+              ADMIN_TOKEN:
+                valueFrom:
+                  secretKeyRef:
+                    name: vaultwarden-secret
+                    key: ADMIN_TOKEN
+              SIGNUPS_ALLOWED: "false"
+              WEBSOCKET_ENABLED: "true"
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
+    service:
+      main:
+        controller: main
+        ports:
+          http:
+            port: 80
+          websocket:
+            port: 3012
+    ingress:
+      main:
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/target: cluster.kaminek.me
+          cert-manager.io/cluster-issuer: letsencrypt-prod
+        hosts:
+          - host: vaultwarden.kaminek.me
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+              - path: /notifications/hub
+                service:
+                  identifier: main
+                  port: websocket
+        tls:
+          - hosts:
+              - vaultwarden.kaminek.me
+            secretName: vaultwarden-tls
+    persistence:
+      data:
+        existingClaim: vaultwarden-data
+        globalMounts:
+          - path: /data

@@ -18,6 +18,7 @@ spec:
   dependsOn:
     - name: prometheus-operator-crds
     - name: alertmanager-config
+    - name: openebs
   wait: true
   interval: 30m
   retryInterval: 1m

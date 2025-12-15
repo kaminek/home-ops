@@ -8,25 +8,38 @@ spec:
   instances: 2
   imageName: ghcr.io/cloudnative-pg/postgresql:16.4-28
   primaryUpdateStrategy: unsupervised
+
   storage:
     size: 10Gi
     storageClass: openebs-hostpath
+
   enableSuperuserAccess: true
   superuserSecret:
     name: cloudnative-pg-secret
+
   postgresql:
     parameters:
       max_connections: "100"
       shared_buffers: 256MB
-  managed:
-    roles:
-      - name: user1
-        passwordSecret:
-          name: cloudnative-pg-secret-user1
+
+  # HA: ensure primary and replica on different nodes
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+
   resources:
     requests:
       cpu: 500m
     limits:
       memory: 1Gi
+
   monitoring:
     enablePodMonitor: true
+
+  managed:
+    roles:
+      - name: vaultwarden
+        ensure: present
+        login: true
+        passwordSecret:
+          name: cnpg-vaultwarden-secret
