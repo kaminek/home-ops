@@ -65,3 +65,23 @@ spec:
           for: 1m
           labels:
             severity: warning
+        - alert: CNPGBackupFailed
+          annotations:
+            description: Last backup for cluster {{ $labels.cnpg_cluster }} failed
+            summary: CloudNative-PG backup failure detected
+          expr: |-
+            cnpg_pg_stat_archiver_last_failed_time > 0
+            and
+            (time() - cnpg_pg_stat_archiver_last_failed_time) < 3600
+          for: 5m
+          labels:
+            severity: critical
+        - alert: CNPGBackupMissing
+          annotations:
+            description: No successful backup in 25 hours for cluster {{ $labels.cnpg_cluster }}
+            summary: CloudNative-PG backup may be failing silently
+          expr: |-
+            (time() - cnpg_cluster_last_successful_backup_timestamp) > 90000
+          for: 5m
+          labels:
+            severity: warning
