@@ -38,7 +38,7 @@ spec:
   # Backup to S3-compatible storage (Cloudflare R2)
   backup:
     barmanObjectStore:
-      destinationPath: s3://backups/cnpg/main
+      destinationPath: s3://backups/cnpg
       endpointURL: https://47dc2e8ccaf9538255dd55cb3fc09e7c.r2.cloudflarestorage.com
       s3Credentials:
         accessKeyId:
