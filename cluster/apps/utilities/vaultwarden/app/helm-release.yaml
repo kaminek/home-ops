@@ -74,7 +74,6 @@ spec:
               SENDS_ALLOWED: "false"
               LOG_LEVEL: warn
               EXTENDED_LOGGING: "true"
-              DISABLE_ADMIN_TOKEN: "true"
             resources:
               requests:
                 cpu: 100m
