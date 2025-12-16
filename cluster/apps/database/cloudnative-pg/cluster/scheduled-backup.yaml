@@ -4,7 +4,7 @@ kind: ScheduledBackup
 metadata:
   name: main-daily
 spec:
-  schedule: "0 3 * * *"  # 3 AM daily
+  schedule: "0 0 3 * * *"  # 3:00 AM daily (6-field cron: sec min hour day month weekday)
   backupOwnerReference: self
   cluster:
     name: main
