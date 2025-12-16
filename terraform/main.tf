@@ -101,6 +101,18 @@ resource "upcloud_firewall_rules" "nodes" {
   }
 
   firewall_rule {
+    action                 = "accept"
+    comment                = "Allow K8s api server"
+    destination_port_start = "6443"
+    destination_port_end   = "6443"
+    direction              = "in"
+    family                 = "IPv4"
+    protocol               = "tcp"
+    source_address_start   = "176.124.42.162"
+    source_address_end     = "176.124.42.162"
+  }
+
+  firewall_rule {
     action               = "accept"
     comment              = "Allow DNSoUDP"
     source_port_start    = "53"
