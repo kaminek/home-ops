@@ -41,6 +41,8 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/hostname: alertmanager.kaminek.me
           cert-manager.io/cluster-issuer: letsencrypt-production
+          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
         ingressClassName: external
         hosts: ["alertmanager.kaminek.me"]
         tls:
