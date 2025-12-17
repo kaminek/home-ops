@@ -65,7 +65,7 @@ l2announcements:
   leaseRetryPeriod: 1s
 loadBalancer:
   algorithm: maglev
-  mode: hybrid
+  mode: snat
 localRedirectPolicy: true
 operator:
   replicas: 1
