@@ -31,11 +31,12 @@ spec:
     fullnameOverride: nginx-external
     controller:
       kind: DaemonSet
-      hostNetwork: true
+      hostNetwork: false
       service:
-        type: ClusterIP
-        # annotations:
-        #   external-dns.alpha.kubernetes.io/hostname: external.kaminek.me
+        type: NodePort
+        nodePorts:
+          http: 80
+          https: 443
       ingressClassResource:
         name: external
         default: false
