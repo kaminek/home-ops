@@ -70,7 +70,7 @@ spec:
       dns:
         controller: main
         type: NodePort
-        externalTrafficPolicy: Local
+        externalTrafficPolicy: Cluster
         ports:
           dns-tcp:
             port: 53
