@@ -2,7 +2,7 @@
 encryption:
   enabled: true
   type: wireguard
-autoDirectNodeRoutes: true
+# autoDirectNodeRoutes not needed with tunnel mode
 bandwidthManager:
   enabled: true
   bbr: false
@@ -48,7 +48,7 @@ ipam:
     clusterPoolIPv4MaskSize: 24
 ipv4:
   enabled: true
-ipv4NativeRoutingCIDR: 10.42.0.0/16
+# ipv4NativeRoutingCIDR not needed with tunnel mode
 ipv6:
   enabled: false
 k8sServiceHost: 127.0.0.1
@@ -73,7 +73,8 @@ operator:
   replicas: 1
   rollOutPods: true
 rollOutCiliumPods: true
-routingMode: native
+routingMode: tunnel
+tunnelProtocol: vxlan
 securityContext:
   capabilities:
     ciliumAgent:

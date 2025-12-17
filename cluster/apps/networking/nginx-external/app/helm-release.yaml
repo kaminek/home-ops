@@ -30,11 +30,11 @@ spec:
   values:
     fullnameOverride: nginx-external
     controller:
-      kind: DaemonSet
+      replicaCount: 1
       hostNetwork: false
       service:
         type: NodePort
-        externalTrafficPolicy: Local
+        externalTrafficPolicy: Cluster
         nodePorts:
           http: 80
           https: 443
