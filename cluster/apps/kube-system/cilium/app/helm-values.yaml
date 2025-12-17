@@ -58,6 +58,8 @@ kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 nodePort:
   enabled: true
   range: "53,32767"
+  # Use all interfaces for NodePort binding
+  addresses: []
 l2announcements:
   enabled: true
   leaseDuration: 120s
