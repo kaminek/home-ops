@@ -8,11 +8,11 @@ spec:
   releaseName: *app
   chart:
     spec:
-      chart: smokeping
-      version: "0.1.24"
+      chart: app-template
+      version: 3.6.1
       sourceRef:
         kind: HelmRepository
-        name: nicholaswilde
+        name: bjw-s
         namespace: flux-system
   interval: 30m
   install:
@@ -24,37 +24,56 @@ spec:
       strategy: rollback
       retries: 3
   values:
-    image:
-      repository: ghcr.io/linuxserver/smokeping
-      pullPolicy: Always
-      tag: "version-2.7.3-r5"
-    strategy:
-      type: Recreate
-    env:
-      TZ: Europe/Paris
+    controllers:
+      main:
+        replicas: 1
+        strategy: Recreate
+        containers:
+          main:
+            image:
+              repository: ghcr.io/linuxserver/smokeping
+              tag: "version-2.7.3-r5"
+            env:
+              TZ: Europe/Paris
+              PUID: "1000"
+              PGID: "1000"
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 256Mi
     service:
-      port:
-        port: 80
-    persistence:
-      config:
-        enabled: false
-        mountPath: /config
-      data:
-        enabled: true
-        existingClaim: smokeping-data
-        mountPath: /data
+      main:
+        controller: main
+        ports:
+          http:
+            port: 80
     ingress:
-      enabled: true
-      ingressClassName: external
-      annotations:
-        external-dns.alpha.kubernetes.io/hostname: ping.kaminek.me
-        cert-manager.io/cluster-issuer: letsencrypt-production
-      hosts:
-        - host: &uri ping.kaminek.me
-          paths:
-            - path: /
-              pathType: Prefix
-      tls:
-        - hosts:
-            - *uri
-          secretName: smokeping-tls
+      main:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: ping.kaminek.me
+          cert-manager.io/cluster-issuer: letsencrypt-production
+        hosts:
+          - host: &uri ping.kaminek.me
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - hosts:
+              - *uri
+            secretName: smokeping-tls
+    persistence:
+      data:
+        existingClaim: smokeping-data
+        globalMounts:
+          - path: /data
+      config:
+        existingClaim: smokeping-config
+        globalMounts:
+          - path: /config
