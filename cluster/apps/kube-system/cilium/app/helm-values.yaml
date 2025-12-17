@@ -24,7 +24,23 @@ endpointRoutes:
 envoy:
   enabled: false
 hubble:
-  enabled: false
+  enabled: true
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+    ingress:
+      enabled: true
+      className: external
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: hubble.kaminek.me
+        cert-manager.io/cluster-issuer: letsencrypt-production
+      hosts:
+        - hubble.kaminek.me
+      tls:
+        - hosts:
+            - hubble.kaminek.me
+          secretName: hubble-ui-tls
 ipam:
   mode: cluster-pool
   operator:
