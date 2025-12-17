@@ -37,6 +37,10 @@ hubble:
         cert-manager.io/cluster-issuer: letsencrypt-production
         nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
         nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
+        hajimari.io/enable: "true"
+        hajimari.io/icon: lan
+        hajimari.io/group: Network
+        hajimari.io/appName: Hubble
       hosts:
         - hubble.kaminek.me
       tls:
