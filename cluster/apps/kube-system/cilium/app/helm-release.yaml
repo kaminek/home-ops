@@ -50,10 +50,10 @@ spec:
           serviceMonitor:
             enabled: true
       ui:
-        enabled: false
+        enabled: true
         rollOutPods: true
         ingress:
-          enabled: false
+          enabled: true
           annotations:
             external-dns.alpha.kubernetes.io/hostname: hubble.kaminek.me
             cert-manager.io/cluster-issuer: letsencrypt-production
