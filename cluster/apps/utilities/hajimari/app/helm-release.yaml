@@ -46,6 +46,9 @@ spec:
       showGlobalBookmarks: true
       showBookmarkGroups: true
       alwaysTargetBlank: false
+      defaultEnable: false
+      namespaceSelector:
+        any: true
       groups:
         - name: Cloud
           links:
