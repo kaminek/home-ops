@@ -40,6 +40,7 @@ spec:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
               capabilities:
+                add: ["SETGID", "SETUID"]
                 drop: ["ALL"]
             resources:
               requests:

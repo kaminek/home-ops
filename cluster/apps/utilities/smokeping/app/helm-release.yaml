@@ -1,0 +1,60 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app smokeping
+spec:
+  releaseName: *app
+  chart:
+    spec:
+      chart: smokeping
+      version: "0.1.24"
+      sourceRef:
+        kind: HelmRepository
+        name: nicholaswilde
+        namespace: flux-system
+  interval: 30m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    image:
+      repository: ghcr.io/linuxserver/smokeping
+      pullPolicy: Always
+      tag: "version-2.7.3-r5"
+    strategy:
+      type: Recreate
+    env:
+      TZ: Europe/Paris
+    service:
+      port:
+        port: 80
+    persistence:
+      config:
+        enabled: false
+        mountPath: /config
+      data:
+        enabled: true
+        existingClaim: smokeping-data
+        mountPath: /data
+    ingress:
+      enabled: true
+      ingressClassName: external
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: ping.kaminek.me
+        cert-manager.io/cluster-issuer: letsencrypt-production
+      hosts:
+        - host: &uri ping.kaminek.me
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - hosts:
+            - *uri
+          secretName: smokeping-tls

@@ -10,6 +10,7 @@ resources:
   - ./grafana.yaml
   - ./hajimari.yaml
   - ./jetstack.yaml
+  - ./nicholaswilde.yaml
   - ./prometheus-community.yaml
   - ./ingress-nginx.yaml
   - ./cilium.yaml
