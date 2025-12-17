@@ -125,23 +125,23 @@ resource "upcloud_firewall_rules" "nodes" {
   }
 
   firewall_rule {
-    action            = "accept"
-    comment           = "Allow ingress DNSoUDP"
-    source_port_start = "53"
-    source_port_end   = "53"
-    direction         = "in"
-    family            = "IPv4"
-    protocol          = "udp"
+    action                 = "accept"
+    comment                = "Allow AdGuard DNS UDP"
+    destination_port_start = "53"
+    destination_port_end   = "53"
+    direction              = "in"
+    family                 = "IPv4"
+    protocol               = "udp"
   }
 
   firewall_rule {
-    action            = "accept"
-    comment           = "Allow ingress DNSoTCP"
-    source_port_start = "53"
-    source_port_end   = "53"
-    direction         = "in"
-    family            = "IPv4"
-    protocol          = "tcp"
+    action                 = "accept"
+    comment                = "Allow AdGuard DNS TCP"
+    destination_port_start = "53"
+    destination_port_end   = "53"
+    direction              = "in"
+    family                 = "IPv4"
+    protocol               = "tcp"
   }
 
   firewall_rule {
