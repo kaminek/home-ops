@@ -55,6 +55,9 @@ k8sServiceHost: 127.0.0.1
 k8sServicePort: 6443
 kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
+nodePort:
+  enabled: true
+  range: "53,32767"
 l2announcements:
   enabled: true
   leaseDuration: 120s
