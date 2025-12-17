@@ -1,0 +1,92 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app hajimari
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: hajimari
+      version: 2.0.2
+      sourceRef:
+        kind: HelmRepository
+        name: hajimari
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    image:
+      repository: ghcr.io/toboshii/hajimari
+      tag: v0.3.1
+    podSecurityContext:
+      fsGroup: 101
+    hajimari:
+      defaultEnable: false
+      lightTheme: paper
+      darkTheme: chalk
+      showGlobalBookmarks: true
+      showAppGroups: true
+      defaultSearchProvider: Google
+      namespaceSelector:
+        any: true
+      name: Kaminek
+      customApps: []
+      groups:
+        - name: Cloud
+          links:
+            - name: GitHub
+              url: https://github.com
+            - name: Cloudflare
+              url: https://dash.cloudflare.com
+        - name: Media
+          links:
+            - name: YouTube
+              url: https://youtube.com
+            - name: Spotify
+              url: https://open.spotify.com
+      searchProviders:
+        - name: Google
+          token: g
+          icon: simple-icons:google
+          searchUrl: https://www.google.com/search?q={query}
+          url: https://www.google.com
+    service:
+      main:
+        ports:
+          http:
+            port: 3000
+    persistence:
+      data:
+        enabled: false
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: hajimari.kaminek.me
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
+        hosts:
+          - host: &uri hajimari.kaminek.me
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *uri
+            secretName: hajimari-tls
