@@ -29,16 +29,23 @@ spec:
     podSecurityContext:
       fsGroup: 101
     hajimari:
-      defaultEnable: false
-      lightTheme: paper
-      darkTheme: chalk
-      showGlobalBookmarks: true
-      showAppGroups: true
-      defaultSearchProvider: Google
-      namespaceSelector:
-        any: true
       name: Kaminek
-      customApps: []
+      title: Hajimari
+      lightTheme: paper
+      darkTheme: espresso
+      customThemes: []
+      showSearch: true
+      showGreeting: true
+      showApps: true
+      showAppGroups: true
+      showAppUrls: false
+      showAppInfo: false
+      showAppStatus: true
+      defaultAppIcon: mdi:application
+      showBookmarks: true
+      showGlobalBookmarks: true
+      showBookmarkGroups: true
+      alwaysTargetBlank: false
       groups:
         - name: Cloud
           links:
