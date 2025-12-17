@@ -36,12 +36,15 @@ spec:
         cookie_httponly = true
         cookie_expire = "168h"
         cookie_refresh = "1h"
+        cookie_domains = [".kaminek.me"]
+        whitelist_domains = [".kaminek.me"]
         pass_access_token = true
         pass_authorization_header = true
         set_authorization_header = true
         set_xauthrequest = true
         reverse_proxy = true
         skip_provider_button = false
+        redirect_url = "https://oauth.kaminek.me/oauth2/callback"
 
     authenticatedEmailsFile:
       enabled: true
