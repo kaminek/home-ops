@@ -58,6 +58,7 @@ kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
 nodePort:
   enabled: true
   range: "53,32767"
+  mode: snat
 l2announcements:
   enabled: true
   leaseDuration: 120s
