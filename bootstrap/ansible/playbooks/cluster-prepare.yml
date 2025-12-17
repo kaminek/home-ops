@@ -41,6 +41,7 @@
             content: |
               [Resolve]
               DNS=1.1.1.1
+              DNSStubListener=no
               Domains=~.
           notify: Restart resolved
 
