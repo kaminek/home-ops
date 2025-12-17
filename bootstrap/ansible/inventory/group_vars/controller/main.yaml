@@ -36,6 +36,7 @@ k3s_server:
   kube-scheduler-arg:
     # Required to monitor component with kube-prometheus-stack
     - "bind-address=0.0.0.0"
+  service-node-port-range: "53-32767"
   kube-apiserver-arg:
     # XXX: Enable the audit log
     # - "--audit-log-path=/var/lib/rancher/k3s/server/audit.log"
