@@ -16,3 +16,4 @@ resources:
   - ./openebs.yaml
   - ./coredns.yaml
   - ./cloudnative-pg.yaml
+  - ./oauth2-proxy.yaml
