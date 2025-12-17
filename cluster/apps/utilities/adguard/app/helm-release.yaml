@@ -28,8 +28,7 @@ spec:
       main:
         replicas: 1
         pod:
-          hostNetwork: true
-          dnsPolicy: ClusterFirstWithHostNet
+          dnsPolicy: ClusterFirst
         initContainers:
           copy-config:
             image:
@@ -68,6 +67,19 @@ spec:
         ports:
           http:
             port: 3000
+      dns:
+        controller: main
+        type: NodePort
+        externalTrafficPolicy: Local
+        ports:
+          dns-tcp:
+            port: 53
+            protocol: TCP
+            nodePort: 53
+          dns-udp:
+            port: 53
+            protocol: UDP
+            nodePort: 53
     ingress:
       main:
         enabled: true
