@@ -1,0 +1,41 @@
+---
+connectivity:
+  checker:
+    target: 1.1.1.1:53
+    interval: 1m
+
+endpoints:
+  - name: Cloudflare
+    group: connectivity
+    url: icmp://1.1.1.1
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+
+  - name: Google
+    group: connectivity
+    url: icmp://8.8.8.8
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+
+metrics: true
+
+storage:
+  type: sqlite
+  caching: true
+  path: /data/gatus.db
+
+ui:
+  title: Status | Kaminek
+  header: Kaminek
+  logo: https://avatars.githubusercontent.com/u/4888890
+  link: https://dashboard.kaminek.me
+  buttons:
+    - name: GitHub
+      link: https://github.com/kaminek
+    - name: Dashboard
+      link: https://dashboard.kaminek.me
+
+web:
+  port: 8080
