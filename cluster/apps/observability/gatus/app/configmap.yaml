@@ -1,0 +1,42 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gatus-config
+data:
+  config.yaml: |
+    storage:
+      type: sqlite
+      path: /data/gatus.db
+      caching: true
+
+    ui:
+      title: Status | Kaminek
+      header: Status
+      logo: https://avatars.githubusercontent.com/u/4888890
+
+    web:
+      port: 8080
+
+    connectivity:
+      checker:
+        target: 1.1.1.1:53
+        interval: 1m
+
+    metrics: true
+
+    endpoints:
+      # Connectivity checks (not auto-discovered)
+      - name: Cloudflare
+        group: connectivity
+        url: icmp://1.1.1.1
+        interval: 1m
+        conditions:
+          - "[CONNECTED] == true"
+
+      - name: Google
+        group: connectivity
+        url: icmp://8.8.8.8
+        interval: 1m
+        conditions:
+          - "[CONNECTED] == true"
