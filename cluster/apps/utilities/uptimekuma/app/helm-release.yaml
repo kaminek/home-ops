@@ -32,7 +32,7 @@ spec:
           main:
             image:
               repository: docker.io/louislam/uptime-kuma
-              tag: 1.23.13-debian
+              tag: 1.23.17-debian
             env:
               TZ: Europe/Paris
               UPTIME_KUMA_DISABLE_FRAME_SAMEORIGIN: 0
