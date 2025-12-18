@@ -24,7 +24,7 @@ metrics: true
 storage:
   type: sqlite
   caching: true
-  path: /data/gatus.db
+  path: ${GATUS_CONFIG_PATH}/gatus.db
 
 ui:
   title: Status | Kaminek
@@ -38,4 +38,4 @@ ui:
       link: https://dashboard.kaminek.me
 
 web:
-  port: 8080
+  port: ${GATUS_WEB_PORT}

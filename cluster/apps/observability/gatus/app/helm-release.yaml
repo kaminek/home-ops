@@ -48,6 +48,7 @@ spec:
               # - --auto-httproute
               # - --enable-httproute
               - --enable-service
+              - --output=/config/sidecar/gatus-sidecar.yaml
             restartPolicy: Always
             resources:
               requests:
