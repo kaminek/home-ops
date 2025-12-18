@@ -43,6 +43,7 @@ spec:
             args:
               - --auto-ingress
               - --enable-ingress
+              - --output=/config/sidecar/gatus-sidecar.yaml
             restartPolicy: Always
             resources:
               requests:
@@ -154,5 +155,4 @@ spec:
       sidecar-config:
         type: emptyDir
         globalMounts:
-          - path: /config/gatus-sidecar.yaml
-            subPath: gatus-sidecar.yaml
+          - path: /config/sidecar
