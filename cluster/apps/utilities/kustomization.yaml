@@ -6,6 +6,5 @@ resources:
   - namespace.yaml
   - adguard/ks.yaml
   - smokeping/ks.yaml
-  - uptimekuma/ks.yaml
   - vaultwarden/ks.yaml
   - hajimari/ks.yaml
