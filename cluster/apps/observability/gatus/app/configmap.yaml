@@ -12,8 +12,14 @@ data:
 
     ui:
       title: Status | Kaminek
-      header: Status
+      header: Kaminek
       logo: https://avatars.githubusercontent.com/u/4888890
+      link: https://dashboard.kaminek.me
+      buttons:
+        - name: GitHub
+          link: https://github.com/kaminek
+        - name: Dashboard
+          link: https://dashboard.kaminek.me
 
     web:
       port: 8080

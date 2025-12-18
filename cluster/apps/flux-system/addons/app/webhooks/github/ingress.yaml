@@ -6,6 +6,7 @@ metadata:
   annotations:
     external-dns.alpha.kubernetes.io/hostname: flux-webhook.kaminek.me
     cert-manager.io/cluster-issuer: letsencrypt-production
+    gatus.home-operations.com/enabled: "false"
 spec:
   ingressClassName: external
   rules:
