@@ -128,7 +128,7 @@ spec:
             - identifier: gatus
     service:
       app:
-        controller: main
+        controller: gatus
         ports:
           http:
             port: *port
