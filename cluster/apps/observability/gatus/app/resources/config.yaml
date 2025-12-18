@@ -24,7 +24,7 @@ metrics: true
 storage:
   type: sqlite
   caching: true
-  path: ${GATUS_CONFIG_PATH}/gatus.db
+  path: /data/gatus.db
 
 ui:
   title: Status | Kaminek
