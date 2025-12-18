@@ -75,7 +75,10 @@ spec:
             port: 3000
     persistence:
       data:
-        enabled: false
+        enabled: true
+        storageClass: openebs-hostpath
+        size: 100Mi
+        accessMode: ReadWriteOnce
     resources:
       requests:
         cpu: 50m
