@@ -128,6 +128,7 @@ spec:
             - identifier: gatus
     service:
       app:
+        controller: main
         ports:
           http:
             port: *port
@@ -155,7 +156,7 @@ spec:
               - path: /
                 pathType: Prefix
                 service:
-                  identifier: main
+                  identifier: app
                   port: http
         tls:
           - hosts:
