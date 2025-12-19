@@ -1,0 +1,49 @@
+server:
+  port: 8080
+
+pages:
+  - name: Home
+    columns:
+      - size: small
+        widgets:
+          - type: calendar
+
+          - type: bookmarks
+            groups:
+              - title: Cloud
+                links:
+                  - title: GitHub
+                    url: https://github.com
+                  - title: Cloudflare
+                    url: https://dash.cloudflare.com
+              - title: Media
+                links:
+                  - title: YouTube
+                    url: https://youtube.com
+                  - title: Spotify
+                    url: https://open.spotify.com
+
+      - size: full
+        widgets:
+          - type: hacker-news
+
+          - type: rss
+            title: Tech News
+            style: horizontal-cards
+            feeds:
+              - url: https://www.theverge.com/rss/index.xml
+              - url: https://hnrss.org/frontpage
+
+      - size: small
+        widgets:
+          - type: weather
+            location: Paris, France
+
+          - type: markets
+            markets:
+              - symbol: SPY
+                name: S&P 500
+              - symbol: BTC-USD
+                name: Bitcoin
+              - symbol: ETH-USD
+                name: Ethereum
