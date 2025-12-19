@@ -29,6 +29,8 @@ spec:
         replicas: 1
         pod:
           dnsPolicy: ClusterFirst
+        annotations:
+          reloader.stakater.com/auto: "true"
         initContainers:
           copy-config:
             image:
@@ -38,10 +40,8 @@ spec:
               - sh
               - -c
               - |
-                if [ ! -f /opt/adguardhome/conf/AdGuardHome.yaml ]; then
-                  cp /tmp/AdGuardHome.yaml /opt/adguardhome/conf/AdGuardHome.yaml
-                  echo "Config seeded"
-                fi
+                cp /tmp/AdGuardHome.yaml /opt/adguardhome/conf/AdGuardHome.yaml
+                echo "Config synced"
         containers:
           main:
             image:
