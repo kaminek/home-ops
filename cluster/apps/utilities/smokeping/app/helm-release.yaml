@@ -43,12 +43,26 @@ spec:
                 memory: 128Mi
               limits:
                 memory: 256Mi
+          exporter:
+            image:
+              repository: quay.io/superq/smokeping-prober
+              tag: v0.8.3
+            args:
+              - --smokeping.targets=/data/Targets
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 64Mi
     service:
       main:
         controller: main
         ports:
           http:
             port: 80
+          metrics:
+            port: 9374
     ingress:
       main:
         enabled: true
@@ -83,3 +97,7 @@ spec:
         existingClaim: smokeping-config
         globalMounts:
           - path: /config
+    serviceMonitor:
+      main:
+        endpoints:
+          - port: metrics
