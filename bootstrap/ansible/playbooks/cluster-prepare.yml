@@ -52,6 +52,23 @@
           community.general.timezone:
             name: "{{ timezone | default('Etc/UTC') }}"
 
+    - name: NTP
+      block:
+        - name: NTP | Install chrony
+          ansible.builtin.package:
+            name: chrony
+            state: present
+
+        - name: NTP | Enable and start chrony
+          ansible.builtin.systemd:
+            name: chrony
+            enabled: true
+            state: started
+
+        - name: NTP | Force sync time
+          ansible.builtin.command: chronyc makestep
+          changed_when: false
+
     - name: Packages
       block:
         - name: Install Packages
