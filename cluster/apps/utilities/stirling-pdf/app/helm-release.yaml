@@ -1,0 +1,77 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app stirling-pdf
+spec:
+  releaseName: *app
+  chart:
+    spec:
+      chart: app-template
+      version: 4.5.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  interval: 30m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      stirling-pdf:
+        replicas: 1
+        containers:
+          app:
+            image:
+              repository: ghcr.io/stirling-tools/stirling-pdf
+              tag: 0.36.5
+            env:
+              TZ: Europe/Paris
+              DOCKER_ENABLE_SECURITY: "false"
+              SECURITY_ENABLE_LOGIN: "false"
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+    service:
+      app:
+        controller: stirling-pdf
+        ports:
+          http:
+            port: 8080
+    ingress:
+      main:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: pdf.kaminek.me
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
+          nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+          gatus.home-operations.com/enabled: "false"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: file-pdf-box
+          hajimari.io/group: Utilities
+          hajimari.io/appName: Stirling PDF
+        hosts:
+          - host: &uri pdf.kaminek.me
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *uri
+            secretName: stirling-pdf-tls
