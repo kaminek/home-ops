@@ -7,6 +7,7 @@ k3s_server:
   node-ip: "{{ ansible_eth2.ipv4.address }}"
   node-external-ip: "{{ ansible_eth2.ipv4.address }}"
   advertise-address: "{{ ansible_eth2.ipv4.address }}"
+  etcd-expose-metrics: true
   tls-san:
     - "{{ k3s_cluster_fqdn }}"
   # Disable Docker - this will use the default containerd CRI
