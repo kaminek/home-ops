@@ -46,7 +46,7 @@ spec:
           exporter:
             image:
               repository: quay.io/superq/smokeping-prober
-              tag: v0.8.1
+              tag: v0.10.0
             args:
               - --smokeping.targets=/data/Targets
             resources:
