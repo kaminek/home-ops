@@ -36,7 +36,7 @@ spec:
     destinations:
       - name: grafana-cloud-logs
         type: loki
-        url: https://logs-prod-gb-south-0.grafana.net/loki/api/v1/push
+        url: https://logs-prod-008.grafana.net/loki/api/v1/push
         auth:
           type: basic
           usernameKey: grafana-loki-user

@@ -32,6 +32,7 @@ spec:
             image:
               repository: ghcr.io/stirling-tools/stirling-pdf
               tag: 2.1.5
+
             env:
               TZ: Europe/Paris
               DOCKER_ENABLE_SECURITY: "false"
