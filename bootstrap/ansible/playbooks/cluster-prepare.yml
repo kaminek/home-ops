@@ -45,6 +45,17 @@
               Domains=~.
           notify: Restart resolved
 
+        - name: Networking | Configure journald limits
+          ansible.builtin.copy:
+            dest: /etc/systemd/journald.conf.d/99-limits.conf
+            content: |
+              [Journal]
+              SystemMaxUse=100M
+              SystemMaxFileSize=10M
+              MaxRetentionSec=3d
+            mode: "0644"
+          notify: Restart journald
+
   tasks:
     - name: Locale
       block:
@@ -133,4 +144,8 @@
     - name: Restart resolved
       ansible.builtin.systemd:
         name: systemd-resolved
+        state: restarted
+    - name: Restart journald
+      ansible.builtin.systemd:
+        name: systemd-journald
         state: restarted
