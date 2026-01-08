@@ -45,6 +45,12 @@
               Domains=~.
           notify: Restart resolved
 
+        - name: Networking | Create journald config directory
+          ansible.builtin.file:
+            path: /etc/systemd/journald.conf.d
+            state: directory
+            mode: "0755"
+
         - name: Networking | Configure journald limits
           ansible.builtin.copy:
             dest: /etc/systemd/journald.conf.d/99-limits.conf
