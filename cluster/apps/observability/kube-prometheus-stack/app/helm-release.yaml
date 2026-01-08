@@ -147,8 +147,8 @@ spec:
           - auto-gomemlimit
           - memory-snapshot-on-shutdown
           - new-service-discovery-manager
-        retention: 14d
-        retentionSize: 50GB
+        retention: 7d
+        retentionSize: 25GB
         resources:
           requests:
             cpu: 100m
@@ -160,7 +160,7 @@ spec:
               storageClassName: local-path
               resources:
                 requests:
-                  storage: 50Gi
+                  storage: 30Gi
     nodeExporter:
       enabled: true
     prometheus-node-exporter:
