@@ -50,6 +50,7 @@
             dest: /etc/systemd/journald.conf.d/99-limits.conf
             content: |
               [Journal]
+              Storage=persistent
               SystemMaxUse=100M
               SystemMaxFileSize=10M
               MaxRetentionSec=3d
