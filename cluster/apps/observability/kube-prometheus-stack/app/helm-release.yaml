@@ -154,6 +154,8 @@ spec:
             cpu: 100m
           limits:
             memory: 1500Mi
+        nodeSelector:
+          kubernetes.io/hostname: node0-a55d689e
         storageSpec:
           volumeClaimTemplate:
             spec:
