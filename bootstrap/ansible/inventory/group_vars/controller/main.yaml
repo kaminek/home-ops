@@ -45,13 +45,13 @@ k3s_server:
     # - "--audit-log-maxage=2"
     - "anonymous-auth=true"
   kubelet-arg:
-    # Image GC thresholds (defaults: 80/85%)
-    - "image-gc-high-threshold=70"
-    - "image-gc-low-threshold=50"
-    # Eviction thresholds
-    - "eviction-hard=nodefs.available<10%,imagefs.available<10%"
-    - "eviction-soft=nodefs.available<15%,imagefs.available<15%"
-    - "eviction-soft-grace-period=nodefs.available=2m,imagefs.available=2m"
-    # Container log rotation (prevents /var/log/pods from filling rootfs)
-    - "container-log-max-size=50Mi"
-    - "container-log-max-files=3"
+    # Aggressive image GC (defaults: 80/85%)
+    - "image-gc-high-threshold=60"
+    - "image-gc-low-threshold=40"
+    # Earlier eviction thresholds for 82GB disks
+    - "eviction-hard=nodefs.available<15%,imagefs.available<15%"
+    - "eviction-soft=nodefs.available<20%,imagefs.available<20%"
+    - "eviction-soft-grace-period=nodefs.available=1m,imagefs.available=1m"
+    # Smaller container logs (shipped to Loki anyway)
+    - "container-log-max-size=10Mi"
+    - "container-log-max-files=2"

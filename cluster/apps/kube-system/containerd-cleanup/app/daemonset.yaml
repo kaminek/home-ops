@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: containerd-cleanup
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: containerd-cleanup
+  template:
+    metadata:
+      labels:
+        app: containerd-cleanup
+    spec:
+      hostPID: true
+      containers:
+        - name: cleanup
+          image: docker.io/library/alpine:3.21
+          command:
+            - /bin/sh
+            - -c
+            - |
+              apk add --no-cache dcron
+              echo "0 */6 * * * /usr/local/bin/cleanup.sh >> /var/log/cleanup.log 2>&1" | crontab -
+              crond -f -l 2
+          volumeMounts:
+            - name: cleanup-script
+              mountPath: /usr/local/bin/cleanup.sh
+              subPath: cleanup.sh
+            - name: run-containerd
+              mountPath: /run/containerd
+            - name: var-log
+              mountPath: /var/log
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+      volumes:
+        - name: cleanup-script
+          configMap:
+            name: containerd-cleanup-script
+            defaultMode: 0755
+        - name: run-containerd
+          hostPath:
+            path: /run/containerd
+        - name: var-log
+          hostPath:
+            path: /var/log
+      tolerations:
+        - operator: Exists

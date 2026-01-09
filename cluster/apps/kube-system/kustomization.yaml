@@ -5,5 +5,6 @@ kind: Kustomization
 resources:
   - namespaces.yaml
   - cilium/ks.yaml
+  - containerd-cleanup/ks.yaml
   - coredns/ks.yaml
   - reloader/ks.yaml
