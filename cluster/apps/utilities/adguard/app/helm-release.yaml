@@ -135,15 +135,20 @@ spec:
             rlimit_nofile: 0
             debug_pprof: false
             web_session_ttl: 720
+            querylog:
+              enabled: true
+              file_enabled: true
+              interval: 24h
+              size_memory: 1000
+              ignored: []
+            statistics:
+              enabled: true
+              interval: 24h
+              ignored: []
             dns:
               bind_hosts:
                 - 0.0.0.0
               port: 53
-              statistics_interval: 1
-              querylog_enabled: true
-              querylog_file_enabled: true
-              querylog_interval: 1
-              querylog_size_memory: 1000
               anonymize_client_ip: false
               protection_enabled: true
               blocking_mode: default
@@ -244,4 +249,4 @@ spec:
             log_max_age: 3
             log_file: ""
             verbose: false
-            schema_version: 10
+            schema_version: 29
