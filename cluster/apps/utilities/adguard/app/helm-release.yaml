@@ -115,7 +115,7 @@ spec:
           - path: /opt/adguardhome/work
       config-file:
         type: configMap
-        name: adguard-settings
+        name: adguard
         globalMounts:
           - path: /tmp/AdGuardHome.yaml
             subPath: AdGuardHome.yaml
