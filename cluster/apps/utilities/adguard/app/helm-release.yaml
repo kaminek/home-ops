@@ -31,6 +31,17 @@ spec:
           dnsPolicy: ClusterFirst
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          copy-config:
+            image:
+              repository: busybox
+              tag: latest
+            command:
+              - sh
+              - -c
+              - |
+                cp /tmp/AdGuardHome.yaml /opt/adguardhome/conf/AdGuardHome.yaml
+                echo "Config synced from ConfigMap"
         containers:
           main:
             image:
@@ -102,3 +113,10 @@ spec:
         existingClaim: adguard-data
         globalMounts:
           - path: /opt/adguardhome/work
+      config-file:
+        type: configMap
+        name: adguard-config
+        globalMounts:
+          - path: /tmp/AdGuardHome.yaml
+            subPath: AdGuardHome.yaml
+            readOnly: true

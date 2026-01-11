@@ -1,0 +1,85 @@
+auth_attempts: 5
+bind_host: 0.0.0.0
+bind_port: 3000
+block_auth_min: 15
+clients:
+  runtime_sources:
+    whois: true
+    arp: true
+    rdns: true
+    dhcp: true
+    hosts: true
+  persistent: []
+dns:
+  bind_hosts:
+    - 0.0.0.0
+  port: 53
+  anonymize_client_ip: false
+  ratelimit: 0
+  ratelimit_whitelist: []
+  refuse_any: true
+  upstream_dns:
+    - https://cloudflare-dns.com/dns-query
+  bootstrap_dns:
+    - 1.1.1.1
+    - 1.0.0.1
+  allowed_clients: []
+  disallowed_clients: []
+  blocked_hosts:
+    - version.bind
+    - id.server
+    - hostname.bind
+  cache_size: 4194304
+  cache_ttl_min: 0
+  cache_ttl_max: 300
+  cache_optimistic: true
+  aaaa_disabled: false
+  enable_dnssec: false
+  edns_client_subnet:
+    enabled: false
+    use_custom: false
+  max_goroutines: 300
+  handle_ddr: true
+  ipset: []
+  use_private_ptr_resolvers: true
+  local_ptr_upstreams: []
+  serve_plain_dns: true
+  hostsfile_enabled: true
+  filtering_enabled: true
+  filters_update_interval: 24
+  parental_enabled: false
+  safe_search:
+    enabled: false
+  safebrowsing_enabled: false
+  protection_enabled: true
+  blocking_mode: default
+  blocked_response_ttl: 10
+  blocked_services:
+    schedule:
+      time_zone: Local
+    ids: []
+  rewrites: []
+tls:
+  enabled: false
+querylog:
+  ignored: []
+  interval: 24h
+  size_memory: 1000
+  enabled: true
+  file_enabled: true
+statistics:
+  ignored: []
+  interval: 24h
+  enabled: true
+filters:
+  - enabled: true
+    url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
+    name: AdGuard DNS filter
+    id: 1
+whitelist_filters: []
+user_rules: []
+language: en
+theme: auto
+log:
+  verbose: false
+schema_version: 29
