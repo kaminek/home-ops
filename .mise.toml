@@ -1,0 +1,12 @@
+[tools]
+age = "latest"
+ansible = "latest"
+flux2 = "latest"
+kubectl = "latest"
+kustomize = "latest"
+pipx = "latest"
+pre-commit = "latest"
+sops = "latest"
+task = "latest"
+terraform = "latest"
+uv = "latest"
