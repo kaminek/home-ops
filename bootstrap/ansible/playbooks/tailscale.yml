@@ -1,0 +1,15 @@
+---
+- hosts:
+    - homelab
+  become: false
+  gather_facts: true
+  any_errors_fatal: true
+  vars_prompt:
+    - name: tailscale_authkey
+      prompt: Tailscale auth key
+      private: true
+  roles:
+    - role: artis3n.tailscale
+      vars:
+        tailscale_args: "--ssh --advertise-exit-node --hostname={{ inventory_hostname }}"
+        state: latest
