@@ -6,10 +6,14 @@
   any_errors_fatal: true
   vars_prompt:
     - name: tailscale_authkey
-      prompt: Tailscale auth key
+      prompt: Tailscale OAuth client secret (tskey-client-...)
       private: true
   roles:
     - role: artis3n.tailscale
       vars:
         tailscale_args: "--ssh --advertise-exit-node --hostname={{ inventory_hostname }}"
+        tailscale_tags:
+          - homelab
+        tailscale_oauth_ephemeral: false
+        tailscale_oauth_preauthorized: true
         state: latest

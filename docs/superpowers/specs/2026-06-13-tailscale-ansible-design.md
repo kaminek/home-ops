@@ -49,46 +49,60 @@ Dedicated playbook, run on demand (decoupled from node prep).
   any_errors_fatal: true
   vars_prompt:
     - name: tailscale_authkey
-      prompt: "Tailscale auth key"
+      prompt: Tailscale OAuth client secret (tskey-client-...)
       private: true
   roles:
     - role: artis3n.tailscale
       vars:
         tailscale_args: "--ssh --advertise-exit-node --hostname={{ inventory_hostname }}"
+        tailscale_tags:
+          - homelab
+        tailscale_oauth_ephemeral: false
+        tailscale_oauth_preauthorized: true
         state: latest
 ```
 
 - `--ssh` enables Tailscale SSH (admin access goal).
 - `--advertise-exit-node` offers each node as an exit node.
 - `--hostname` makes tailnet device names match inventory hostnames.
-- `tailscale_authkey` is set play-wide by `vars_prompt`; the role consumes it
-  automatically (no explicit var-pass needed).
+- `tailscale_authkey` is set play-wide by `vars_prompt`; the role detects an
+  OAuth client secret (prefix `tskey-client-`) automatically and exchanges it
+  for an ephemeral auth key at `tailscale up` time.
+- `tailscale_tags: [homelab]` → role advertises `--advertise-tags=tag:homelab`.
+  **Required** with OAuth (the role fails fast if an OAuth key is given without
+  tags).
+- `tailscale_oauth_ephemeral: false` — nodes are always-on; they must persist
+  on the tailnet, not auto-deregister when briefly offline.
+- `tailscale_oauth_preauthorized: true` — nodes join without a manual device
+  approval click in the console.
 
 **Prerequisite:** exit-node routing needs IPv4/IPv6 forwarding enabled.
 `cluster-prepare.yml` already sets `net.ipv4.ip_forward=1` and
 `net.ipv6.conf.all.forwarding=1`, so node prep must have run before this
 playbook. (This playbook does not set forwarding itself.)
 
-**Console step:** an advertised exit node must be manually approved/enabled in
-the Tailscale admin console (Machines → node → Edit route settings → Use as
-exit node), and clients select it explicitly. Not automatable without
-OAuth/ACL — out of scope.
+### 3. Credential — OAuth client secret, prompted at runtime (no stored secret)
 
-### 3. Auth key — prompted at runtime (no stored secret)
+Authentication uses a **Tailscale OAuth client** (Settings → OAuth clients),
+not a static auth key. The client secret (`tskey-client-...`) is prompted at
+runtime via `vars_prompt` (`private: true` keeps it off-screen and out of
+logs). No sops file, no secret in git.
 
-The auth key is a long-lived (up to 90d) credential. Rather than persist it in
-the repo, the playbook prompts for it on each run via `vars_prompt`
-(`private: true` keeps it off-screen and out of logs). No sops file, no secret
-in git — smaller blast radius.
+Why OAuth over a static auth key: the OAuth client secret does **not expire**
+(static auth keys cap at 90 days). The role mints a short-lived ephemeral key
+from the client secret per run, so there is no long-lived join token to rotate.
 
-This is operationally cheap: the auth key is only needed at `tailscale up`
-time (node join). Once a node authenticates, it stays on the tailnet via its
-own persistent node key across reboots — so re-entry is only required when
-adding or re-joining a node, not for normal operation.
+This is operationally cheap: the secret is only needed at `tailscale up` time
+(node join). Once a node authenticates, it stays on the tailnet via its own
+persistent node key across reboots — so re-entry is only required when adding
+or re-joining a node, not for normal operation.
 
-Key generated in the Tailscale admin console at apply time. **Non-ephemeral**
-recommended (these are always-on admin nodes that should persist across
-reboots); ephemeral would auto-deregister an offline node.
+**Tailnet prerequisite (one-time, console/ACL):**
+- Define `tag:homelab` in the ACL policy `tagOwners`.
+- Create an OAuth client scoped to write `devices` for `tag:homelab`.
+- (Optional) Add an `autoApprovers.exitNode` entry for `tag:homelab` so the
+  advertised exit nodes are approved automatically — otherwise each node must
+  be enabled as an exit node manually in Machines → Edit route settings.
 
 ### 4. Taskfile target `.taskfiles/ansible.yml`
 
@@ -104,11 +118,10 @@ reboots); ephemeral would auto-deregister an offline node.
 - Routing k3s/etcd traffic over the tailnet.
 - Subnet router (advertising the cluster/pod CIDRs). Exit node only.
 - Setting IP forwarding in this playbook (handled by `cluster-prepare.yml`).
-- Auto-approving exit nodes in the console (manual / requires OAuth+ACL).
-- Storing the auth key in repo (sops or otherwise) — prompted at runtime
-  instead.
-- OAuth client + ACL tag automation (prompted key is sufficient for admin
-  access; can revisit if fleet grows).
+- Managing the tailnet ACL policy / OAuth client / `tagOwners` in this repo —
+  these are one-time console/ACL setup steps, done outside ansible.
+- Storing the OAuth client secret in repo (sops or otherwise) — prompted at
+  runtime instead.
 - Removing/uninstalling anything WireGuard from nodes — nothing was ever
   installed, so only the dead `requirements.yml` entry needs removal.
 
@@ -116,16 +129,19 @@ reboots); ephemeral would auto-deregister an offline node.
 
 1. `task ansible:init` — galaxy resolves `artis3n.tailscale` v5.0.1, no
    wireguard role pulled.
-2. `task ansible:tailscale` — prompts for auth key, role completes,
-   `tailscale status` shows all 3 nodes online on the tailnet with SSH and
-   exit-node advertised (`tailscale status --json` → `ExitNodeOption: true`).
+2. `task ansible:tailscale` — prompts for the OAuth client secret, role
+   completes, `tailscale status` shows all 3 nodes online on the tailnet
+   tagged `tag:homelab` with SSH and exit-node advertised (`tailscale status
+   --json` → `ExitNodeOption: true`).
 3. SSH a node via its tailnet IP/hostname succeeds.
-4. After enabling an exit node in the console, a client `tailscale up
-   --exit-node=<node>` routes egress through it.
+4. Exit node routing: once approved (auto via `autoApprovers` or manually), a
+   client `tailscale up --exit-node=<node>` routes egress through it.
 5. k3s unaffected: `kubectl get nodes` still Ready, internal IPs still
    10.10.0.x.
 
 ## Unresolved Questions
 
-- None blocking. Auth key is generated in the console at apply time;
-  non-ephemeral recommended for always-on nodes.
+- None blocking. The OAuth client + `tag:homelab` `tagOwners` are created once
+  in the Tailscale console/ACL before the first apply; exit-node approval is
+  either automatic (`autoApprovers.exitNode` for `tag:homelab`) or a manual
+  per-node console step.
