@@ -5,8 +5,9 @@
 
 ## Goal
 
-Replace the unused WireGuard mesh role with the `artis3n.tailscale` Ansible
-role, running on all 3 nodes to:
+Replace the unused WireGuard mesh role with the `artis3n.tailscale.machine`
+Ansible role (from the `artis3n.tailscale` collection), running on all 3 nodes
+to:
 - reach and SSH the nodes over the tailnet (Tailscale SSH);
 - advertise each node as an **exit node**.
 
@@ -18,8 +19,14 @@ private network (10.10.0.x).
 - `githubixx.ansible_role_wireguard` is declared in `requirements.yml` (lines
   19–20) but **never invoked** by any playbook. WireGuard is not running on any
   node (`wg-quick@wg0` inactive, no `wg0` interface). Dead dependency.
-- Tailscale has **no first-party Ansible role**. `artis3n.tailscale` (725k
-  downloads) is the de-facto community standard. Pin to **v5.0.1**.
+- Tailscale has **no first-party Ansible role**. The `artis3n` project is the
+  de-facto community standard. The standalone role (`artis3n.tailscale`
+  v5.0.1) is abandoned and **breaks on ansible-core ≥ 2.19** (a `meta:
+  end_role` task with a string `when:` violates strict boolean conditionals;
+  it also relies on the deprecated `INJECT_FACTS_AS_VARS`). Use the successor
+  **collection `artis3n.tailscale` v1.2.1**, role `artis3n.tailscale.machine`,
+  which fixes both (no migration-notice task, uses `ansible_facts.*`). Same
+  variable interface — drop-in.
 - Repo secret convention: sops + age, `community.sops` collection. age key now
   present at `~/.config/sops/age/keys.txt`.
 - Node `ansible_user` is `root` — no `become` escalation needed for install.
@@ -28,12 +35,11 @@ private network (10.10.0.x).
 
 ### 1. `requirements.yml`
 
-- **Remove** `githubixx.ansible_role_wireguard` (lines 19–20).
-- **Add** under `roles:`
+- **Remove** `githubixx.ansible_role_wireguard`.
+- **Add** under `collections:` (it is a collection, not a standalone role):
   ```yaml
   - name: artis3n.tailscale
-    src: https://github.com/artis3n/ansible-role-tailscale.git
-    version: v5.0.1
+    version: 1.2.1
   ```
 
 ### 2. New playbook `bootstrap/ansible/playbooks/tailscale.yml`
@@ -52,7 +58,7 @@ Dedicated playbook, run on demand (decoupled from node prep).
       prompt: Tailscale OAuth client secret (tskey-client-...)
       private: true
   roles:
-    - role: artis3n.tailscale
+    - role: artis3n.tailscale.machine
       vars:
         tailscale_args: "--ssh --advertise-exit-node --hostname={{ inventory_hostname }}"
         tailscale_tags:
@@ -129,8 +135,8 @@ or re-joining a node, not for normal operation.
 
 ## Verification
 
-1. `task ansible:init` — galaxy resolves `artis3n.tailscale` v5.0.1, no
-   wireguard role pulled.
+1. `task ansible:init` — galaxy installs the `artis3n.tailscale` collection
+   v1.2.1, no wireguard role pulled.
 2. `task ansible:tailscale` — prompts for the OAuth client secret, role
    completes, `tailscale status` shows all 3 nodes online on the tailnet
    tagged `tag:homelab` with SSH and exit-node advertised (`tailscale status

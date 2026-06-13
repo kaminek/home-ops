@@ -4,9 +4,11 @@
 
 **Goal:** Replace the unused `githubixx.ansible_role_wireguard` dependency with `artis3n.tailscale`, run on all 3 nodes for tailnet SSH access and exit-node advertising.
 
-**Architecture:** A new dedicated ansible playbook (`tailscale.yml`) applies the `artis3n.tailscale` role to the `homelab` host group. Authentication uses a Tailscale OAuth client secret prompted at runtime (`vars_prompt`, never stored); nodes are tagged `tag:homelab`. `tailscale up` flags enable SSH and exit-node advertising. k3s networking is untouched. IP forwarding (exit-node prereq) is already handled by `cluster-prepare.yml`.
+**Architecture:** A new dedicated ansible playbook (`tailscale.yml`) applies the `artis3n.tailscale.machine` role (from the `artis3n.tailscale` collection) to the `homelab` host group. Authentication uses a Tailscale OAuth client secret prompted at runtime (`vars_prompt`, never stored); nodes are tagged `tag:homelab`. `tailscale up` flags enable SSH and exit-node advertising. k3s networking is untouched. IP forwarding (exit-node prereq) is already handled by `cluster-prepare.yml`.
 
-**Tech Stack:** Ansible, ansible-galaxy, `artis3n.tailscale` v5.0.1, go-task, yamllint, sops (unchanged).
+> **Update (post-implementation):** the standalone role `artis3n.tailscale` v5.0.1 was found to break on ansible-core 2.21 (strict boolean conditionals reject its `meta: end_role` migration-notice task; `INJECT_FACTS_AS_VARS` deprecation). Migrated to the successor **collection `artis3n.tailscale` v1.2.1**, role `artis3n.tailscale.machine` — same variable interface, both issues fixed. The requirements/playbook snippets below reflect the final collection-based state.
+
+**Tech Stack:** Ansible, ansible-galaxy, `artis3n.tailscale` collection v1.2.1 (role `.machine`), go-task, yamllint, sops (unchanged).
 
 **Spec:** `docs/superpowers/specs/2026-06-13-tailscale-ansible-design.md`
 
@@ -39,15 +41,14 @@ In `requirements.yml`, under the `roles:` list, the current entry is:
     version: 19.1.0
 ```
 
-Replace it with:
+Remove it. Add the tailscale **collection** under the `collections:` list instead (final state after the v5 → collection migration):
 
 ```yaml
   - name: artis3n.tailscale
-    src: https://github.com/artis3n/ansible-role-tailscale.git
-    version: v5.0.1
+    version: 1.2.1
 ```
 
-Leave the `xanmanning.k3s` role entry above it unchanged.
+Leave the `xanmanning.k3s` role entry unchanged.
 
 - [ ] **Step 2: Verify the file parses as valid YAML**
 
@@ -56,8 +57,8 @@ Expected: no output, exit 0.
 
 - [ ] **Step 3: Verify galaxy resolves the new role and drops the old**
 
-Run: `mise exec -- ansible-galaxy install -r requirements.yml --force 2>&1 | tail -20`
-Expected: output includes `artis3n.tailscale` being installed at v5.0.1; no `githubixx` / `wireguard` line. Exit 0.
+Run: `mise exec -- ansible-galaxy collection install -r requirements.yml --force 2>&1 | tail -20`
+Expected: output includes `artis3n.tailscale:1.2.1 was installed successfully`; no `githubixx` / `wireguard` line. Exit 0.
 
 - [ ] **Step 4: Confirm the wireguard role is no longer referenced anywhere**
 
@@ -97,7 +98,7 @@ Create `bootstrap/ansible/playbooks/tailscale.yml` with exactly this content:
       prompt: Tailscale OAuth client secret (tskey-client-...)
       private: true
   roles:
-    - role: artis3n.tailscale
+    - role: artis3n.tailscale.machine
       vars:
         tailscale_args: "--ssh --advertise-exit-node --hostname={{ inventory_hostname }}"
         tailscale_tags:
@@ -110,7 +111,7 @@ Create `bootstrap/ansible/playbooks/tailscale.yml` with exactly this content:
 Notes for the implementer:
 - `homelab` is the host group containing node0/1/2 (see `inventory.yaml`). Other playbooks (`cluster-reboot.yml`, `cluster-installation.yml`) use the same group.
 - `become: false` matches the repo convention — `ansible_user` is already `root`.
-- `vars_prompt` runs at play start; `private: true` hides input and keeps it out of logs. The `artis3n.tailscale` role reads the `tailscale_authkey` variable automatically, so it is NOT repeated under the role's `vars:`.
+- `vars_prompt` runs at play start; `private: true` hides input and keeps it out of logs. The `artis3n.tailscale.machine` role reads the `tailscale_authkey` variable automatically, so it is NOT repeated under the role's `vars:`.
 - Authentication is via a **Tailscale OAuth client secret** (`tskey-client-...`). The role auto-detects the `tskey-client-` prefix and exchanges it for an ephemeral key at `tailscale up` time.
 - `tailscale_tags: [homelab]` is **required** with OAuth — the role fails fast if an OAuth secret is supplied without tags. It becomes `--advertise-tags=tag:homelab`. `tag:homelab` must exist in the tailnet ACL `tagOwners`, and the OAuth client must be scoped to it.
 - `tailscale_oauth_ephemeral: false` — nodes are always-on and must persist (not auto-deregister when briefly offline).
@@ -133,7 +134,7 @@ Expected: `playbook: bootstrap/ansible/playbooks/tailscale.yml`, exit 0. (Requir
 git add bootstrap/ansible/playbooks/tailscale.yml
 git commit -m "feat(ansible): add tailscale playbook
 
-- apply artis3n.tailscale to homelab nodes
+- apply artis3n.tailscale.machine to homelab nodes
 - ssh + exit-node advertising, hostname from inventory
 - authkey prompted at runtime, never stored"
 ```
@@ -189,7 +190,7 @@ Expected: all hooks `Passed` (or `Skipped` for terraform hooks — no .tf change
 - [ ] **Step 2: Confirm galaxy state is clean end-to-end**
 
 Run: `mise exec -- task ansible:init 2>&1 | tail -15`
-Expected: installs `artis3n.tailscale` v5.0.1 + collections, no wireguard, exit 0.
+Expected: installs the `artis3n.tailscale` collection v1.2.1 + other collections, no wireguard, exit 0.
 
 - [ ] **Step 3: Connectivity check to nodes (no changes)**
 
