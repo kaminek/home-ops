@@ -30,6 +30,11 @@ tasks:
     cmds:
       - ansible-playbook {{.ANSIBLE_PLAYBOOK_DIR}}/cluster-installation.yml
 
+  tailscale:
+    desc: Install / configure Tailscale on the nodes
+    cmds:
+      - ansible-playbook {{.ANSIBLE_PLAYBOOK_DIR}}/tailscale.yml
+
   nuke:
     desc: Nuke the cluster
     cmds:
