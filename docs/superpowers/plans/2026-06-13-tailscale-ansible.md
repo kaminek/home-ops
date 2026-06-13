@@ -216,8 +216,9 @@ In login.tailscale.com:
    ```json
    "autoApprovers": { "exitNode": ["tag:homelab"] }
    ```
-3. Settings → OAuth clients → Generate client. Scope: **Devices → write**,
-   tag `tag:homelab`. Copy the client secret (`tskey-client-...`).
+3. Trust credentials → Generate OAuth client. Scope: **Keys / `auth_keys` →
+   Write** (the minimal scope — not `devices:core`), tag `tag:homelab`. Copy
+   the client secret (`tskey-client-...`).
 
 - [ ] **Step 1: Apply the playbook**
 

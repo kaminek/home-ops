@@ -99,7 +99,9 @@ or re-joining a node, not for normal operation.
 
 **Tailnet prerequisite (one-time, console/ACL):**
 - Define `tag:homelab` in the ACL policy `tagOwners`.
-- Create an OAuth client scoped to write `devices` for `tag:homelab`.
+- Create an OAuth client with the minimal **`auth_keys` (write)** scope for
+  `tag:homelab`. (Not `devices:core` — `auth_keys` is the dedicated
+  key-minting scope and is all the role needs.)
 - (Optional) Add an `autoApprovers.exitNode` entry for `tag:homelab` so the
   advertised exit nodes are approved automatically — otherwise each node must
   be enabled as an exit node manually in Machines → Edit route settings.
