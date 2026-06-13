@@ -6,9 +6,12 @@
 ## Goal
 
 Replace the unused WireGuard mesh role with the `artis3n.tailscale` Ansible
-role, providing Tailscale on all cluster nodes for **remote admin access
-only**. k3s networking is untouched — cluster/etcd traffic stays on the
-UpCloud private network (10.10.0.x).
+role, running on all 3 nodes to:
+- reach and SSH the nodes over the tailnet (Tailscale SSH);
+- advertise each node as an **exit node**.
+
+k3s networking is untouched — cluster/etcd traffic stays on the UpCloud
+private network (10.10.0.x).
 
 ## Context / Findings
 
@@ -51,14 +54,25 @@ Dedicated playbook, run on demand (decoupled from node prep).
   roles:
     - role: artis3n.tailscale
       vars:
-        tailscale_args: "--ssh --hostname={{ inventory_hostname }}"
+        tailscale_args: "--ssh --advertise-exit-node --hostname={{ inventory_hostname }}"
         state: latest
 ```
 
 - `--ssh` enables Tailscale SSH (admin access goal).
+- `--advertise-exit-node` offers each node as an exit node.
 - `--hostname` makes tailnet device names match inventory hostnames.
 - `tailscale_authkey` is set play-wide by `vars_prompt`; the role consumes it
   automatically (no explicit var-pass needed).
+
+**Prerequisite:** exit-node routing needs IPv4/IPv6 forwarding enabled.
+`cluster-prepare.yml` already sets `net.ipv4.ip_forward=1` and
+`net.ipv6.conf.all.forwarding=1`, so node prep must have run before this
+playbook. (This playbook does not set forwarding itself.)
+
+**Console step:** an advertised exit node must be manually approved/enabled in
+the Tailscale admin console (Machines → node → Edit route settings → Use as
+exit node), and clients select it explicitly. Not automatable without
+OAuth/ACL — out of scope.
 
 ### 3. Auth key — prompted at runtime (no stored secret)
 
@@ -88,7 +102,9 @@ reboots); ephemeral would auto-deregister an offline node.
 ## Out of Scope (YAGNI)
 
 - Routing k3s/etcd traffic over the tailnet.
-- Subnet router / exit node.
+- Subnet router (advertising the cluster/pod CIDRs). Exit node only.
+- Setting IP forwarding in this playbook (handled by `cluster-prepare.yml`).
+- Auto-approving exit nodes in the console (manual / requires OAuth+ACL).
 - Storing the auth key in repo (sops or otherwise) — prompted at runtime
   instead.
 - OAuth client + ACL tag automation (prompted key is sufficient for admin
@@ -101,10 +117,12 @@ reboots); ephemeral would auto-deregister an offline node.
 1. `task ansible:init` — galaxy resolves `artis3n.tailscale` v5.0.1, no
    wireguard role pulled.
 2. `task ansible:tailscale` — prompts for auth key, role completes,
-   `tailscale status` shows all 3 nodes online on the tailnet, `tailscale up
-   --ssh` active.
+   `tailscale status` shows all 3 nodes online on the tailnet with SSH and
+   exit-node advertised (`tailscale status --json` → `ExitNodeOption: true`).
 3. SSH a node via its tailnet IP/hostname succeeds.
-4. k3s unaffected: `kubectl get nodes` still Ready, internal IPs still
+4. After enabling an exit node in the console, a client `tailscale up
+   --exit-node=<node>` routes egress through it.
+5. k3s unaffected: `kubectl get nodes` still Ready, internal IPs still
    10.10.0.x.
 
 ## Unresolved Questions
