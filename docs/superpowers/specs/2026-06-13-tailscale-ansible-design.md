@@ -44,27 +44,37 @@ Dedicated playbook, run on demand (decoupled from node prep).
   become: false
   gather_facts: true
   any_errors_fatal: true
+  vars_prompt:
+    - name: tailscale_authkey
+      prompt: "Tailscale auth key"
+      private: true
   roles:
     - role: artis3n.tailscale
       vars:
-        tailscale_authkey: "{{ tailscale_authkey }}"
         tailscale_args: "--ssh --hostname={{ inventory_hostname }}"
         state: latest
 ```
 
 - `--ssh` enables Tailscale SSH (admin access goal).
 - `--hostname` makes tailnet device names match inventory hostnames.
+- `tailscale_authkey` is set play-wide by `vars_prompt`; the role consumes it
+  automatically (no explicit var-pass needed).
 
-### 3. Auth key secret (sops-encrypted)
+### 3. Auth key — prompted at runtime (no stored secret)
 
-New group_vars file `bootstrap/ansible/inventory/group_vars/homelab/tailscale.sops.yml`:
+The auth key is a long-lived (up to 90d) credential. Rather than persist it in
+the repo, the playbook prompts for it on each run via `vars_prompt`
+(`private: true` keeps it off-screen and out of logs). No sops file, no secret
+in git — smaller blast radius.
 
-```yaml
-tailscale_authkey: <reusable-or-ephemeral-key>
-```
+This is operationally cheap: the auth key is only needed at `tailscale up`
+time (node join). Once a node authenticates, it stays on the tailnet via its
+own persistent node key across reboots — so re-entry is only required when
+adding or re-joining a node, not for normal operation.
 
-Encrypted via existing `.sops.yaml` rule (`ansible/.*\.sops\.ya?ml` → age key).
-Key generated in the Tailscale admin console (reusable, optionally tagged).
+Key generated in the Tailscale admin console at apply time. **Non-ephemeral**
+recommended (these are always-on admin nodes that should persist across
+reboots); ephemeral would auto-deregister an offline node.
 
 ### 4. Taskfile target `.taskfiles/ansible.yml`
 
@@ -79,7 +89,9 @@ Key generated in the Tailscale admin console (reusable, optionally tagged).
 
 - Routing k3s/etcd traffic over the tailnet.
 - Subnet router / exit node.
-- OAuth client + ACL tag automation (sops static key is sufficient for admin
+- Storing the auth key in repo (sops or otherwise) — prompted at runtime
+  instead.
+- OAuth client + ACL tag automation (prompted key is sufficient for admin
   access; can revisit if fleet grows).
 - Removing/uninstalling anything WireGuard from nodes — nothing was ever
   installed, so only the dead `requirements.yml` entry needs removal.
@@ -88,14 +100,14 @@ Key generated in the Tailscale admin console (reusable, optionally tagged).
 
 1. `task ansible:init` — galaxy resolves `artis3n.tailscale` v5.0.1, no
    wireguard role pulled.
-2. `sops -d` the new tailscale.sops.yml round-trips.
-3. `task ansible:tailscale` — role completes, `tailscale status` shows all 3
-   nodes online on the tailnet, `tailscale up --ssh` active.
-4. SSH a node via its tailnet IP/hostname succeeds.
-5. k3s unaffected: `kubectl get nodes` still Ready, internal IPs still
+2. `task ansible:tailscale` — prompts for auth key, role completes,
+   `tailscale status` shows all 3 nodes online on the tailnet, `tailscale up
+   --ssh` active.
+3. SSH a node via its tailnet IP/hostname succeeds.
+4. k3s unaffected: `kubectl get nodes` still Ready, internal IPs still
    10.10.0.x.
 
 ## Unresolved Questions
 
-- None blocking. Auth key (reusable vs ephemeral, tagged or not) is a console
-  choice at apply time; design supports any via the single sops var.
+- None blocking. Auth key is generated in the console at apply time;
+  non-ephemeral recommended for always-on nodes.
