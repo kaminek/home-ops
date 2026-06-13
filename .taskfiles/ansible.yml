@@ -12,8 +12,8 @@ tasks:
   init:
     desc: Install / Upgrade Ansible galaxy deps
     cmds:
-      - ansible-galaxy install -r {{.ANSIBLE_DIR}}/requirements.yml --force
-      - ansible-galaxy collection install -r {{.ANSIBLE_DIR}}/requirements.yml --force
+      - ansible-galaxy install -r {{.PROJECT_DIR}}/requirements.yml --force
+      - ansible-galaxy collection install -r {{.PROJECT_DIR}}/requirements.yml --force
 
   list:
     desc: List all the hosts
