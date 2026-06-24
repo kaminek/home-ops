@@ -46,7 +46,7 @@ spec:
           main:
             image:
               repository: vaultwarden/server
-              tag: 1.35.4
+              tag: 1.36.0
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
