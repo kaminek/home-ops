@@ -23,7 +23,10 @@ dns:
   bootstrap_dns:
     - 1.1.1.1
     - 1.0.0.1
-  allowed_clients: []
+  allowed_clients:
+    - 100.64.0.0/10       # tailscale tailnet
+    - 10.10.0.0/24        # cluster nodes / LAN
+    - ${ADGUARD_ALLOWED_IP} # home WAN (from cluster-secrets)
   disallowed_clients: []
   blocked_hosts:
     - version.bind
