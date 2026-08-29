@@ -132,6 +132,8 @@ resource "upcloud_firewall_rules" "nodes" {
     direction              = "in"
     family                 = "IPv4"
     protocol               = "udp"
+    source_address_start   = data.sops_file.secrets.data.allowed_ip
+    source_address_end     = data.sops_file.secrets.data.allowed_ip
   }
 
   firewall_rule {
@@ -142,6 +144,8 @@ resource "upcloud_firewall_rules" "nodes" {
     direction              = "in"
     family                 = "IPv4"
     protocol               = "tcp"
+    source_address_start   = data.sops_file.secrets.data.allowed_ip
+    source_address_end     = data.sops_file.secrets.data.allowed_ip
   }
 
   firewall_rule {
