@@ -11,3 +11,8 @@ tasks:
     desc: decrypt sops file 'to use must include -- before path to file.'  eg "task sops:decrypt -- file.yml"
     cmds:
       - sops --decrypt --in-place {{.CLI_ARGS}}
+
+  edit:
+    desc: edit sops file in $EDITOR, re-encrypts on save 'to use must include -- before path to file.' eg "task sops:edit -- file.yml"
+    cmds:
+      - sops {{.CLI_ARGS}}
