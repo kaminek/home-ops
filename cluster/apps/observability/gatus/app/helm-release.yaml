@@ -31,6 +31,7 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         pod:
+          automountServiceAccountToken: true # app-template v5 defaults this to false; gatus-sidecar needs the in-cluster token
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000
