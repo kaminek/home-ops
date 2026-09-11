@@ -34,7 +34,7 @@ spec:
 
     # Destinations
     destinations:
-      - name: grafana-cloud-logs
+      grafana-cloud-logs:
         type: loki
         url: https://logs-prod-008.grafana.net/loki/api/v1/push
         auth:
@@ -45,7 +45,7 @@ spec:
           create: false
           name: grafana-credentials-secret
           namespace: observability
-      - name: grafana-cloud-traces
+      grafana-cloud-traces:
         type: otlp
         url: https://tempo-prod-06-prod-gb-south-0.grafana.net/tempo
         auth:
@@ -60,12 +60,28 @@ spec:
           enabled: false
         logs:
           enabled: false
-      - name: internal-prometheus
+      internal-prometheus:
         type: prometheus
         url: http://prometheus-operated.observability.svc.cluster.local:9090/api/v1/write
 
+    # Collectors
+    collectors:
+      alloy-logs:
+        presets:
+          - filesystem-log-reader
+          - daemonset
+      alloy-singleton:
+        presets:
+          - singleton
+      alloy-receiver:
+        presets:
+          - deployment
+        controller:
+          type: deployment
+          replicas: 1
+
     # Features
-    podLogs:
+    podLogsViaLoki:
       enabled: true
       destinations:
         - grafana-cloud-logs
@@ -74,16 +90,19 @@ spec:
           rate  = 500
           burst = 800
         }
+      collector: alloy-logs
 
     nodeLogs:
       enabled: true
       destinations:
         - grafana-cloud-logs
+      collector: alloy-logs
 
     clusterEvents:
       enabled: true
       destinations:
         - grafana-cloud-logs
+      collector: alloy-singleton
 
     applicationObservability:
       enabled: true
@@ -99,17 +118,7 @@ spec:
           http:
             enabled: true
             port: 4318
-
-    # Collectors
-    alloy-logs:
-      enabled: true
-    alloy-singleton:
-      enabled: true
-    alloy-receiver:
-      enabled: true
-      controller:
-        type: deployment
-        replicas: 1
+      collector: alloy-receiver
 
     # Disabled
     clusterMetrics:
