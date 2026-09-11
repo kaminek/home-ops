@@ -6,3 +6,4 @@ resources:
   - ./secret.sops.yaml
   - ./ingress.yaml
   - ./receiver.yaml
+  - ./healthz-service.yaml
