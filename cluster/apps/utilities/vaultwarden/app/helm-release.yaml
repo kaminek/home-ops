@@ -86,8 +86,6 @@ spec:
         ports:
           http:
             port: 80
-          websocket:
-            port: 3012
     ingress:
       main:
         className: external
@@ -108,7 +106,7 @@ spec:
               - path: /notifications/hub
                 service:
                   identifier: main
-                  port: websocket
+                  port: http
           - host: bitwarden.kaminek.me
             paths:
               - path: /
@@ -118,7 +116,7 @@ spec:
               - path: /notifications/hub
                 service:
                   identifier: main
-                  port: websocket
+                  port: http
         tls:
           - hosts:
               - vaultwarden.kaminek.me
