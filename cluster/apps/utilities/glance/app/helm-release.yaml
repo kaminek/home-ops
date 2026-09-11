@@ -82,7 +82,6 @@ spec:
           cert-manager.io/cluster-issuer: letsencrypt-production
           nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
           nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
-          gatus.home-operations.com/enabled: "false"
           hajimari.io/enable: "true"
           hajimari.io/icon: view-dashboard
           hajimari.io/group: Utilities
