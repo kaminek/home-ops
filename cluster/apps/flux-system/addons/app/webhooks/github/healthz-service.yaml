@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/v1/service.json
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-controller-healthz
+  annotations:
+    gatus.home-operations.com/enabled: "true"
+    gatus.home-operations.com/endpoint: |
+      name: flux-notification-controller
+      url: http://notification-controller-healthz.flux-system.svc.cluster.local.:9440/healthz
+      conditions:
+        - "[STATUS] == 200"
+spec:
+  selector:
+    app: notification-controller
+  ports:
+    - name: healthz
+      port: 9440
+      targetPort: healthz

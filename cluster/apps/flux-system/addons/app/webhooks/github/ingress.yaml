@@ -6,6 +6,7 @@ metadata:
   annotations:
     external-dns.alpha.kubernetes.io/hostname: flux-webhook.kaminek.me
     cert-manager.io/cluster-issuer: letsencrypt-production
+    gatus.home-operations.com/enabled: "false" # superseded by notification-controller-healthz service check
 spec:
   ingressClassName: external
   rules:
