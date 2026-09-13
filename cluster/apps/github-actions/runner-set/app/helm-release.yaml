@@ -19,7 +19,7 @@ spec:
       retries: 3
   values:
     # yamllint disable rule:line-length
-    githubConfigUrl: https://github.com/kaminek # organization/account URL - runners see every repo it's installed on
+    githubConfigUrl: https://github.com/kalimet # org URL - runners see every repo kalimet-ci is installed on
     # yamllint enable rule:line-length
     githubConfigSecret: gha-runner-scale-set-github-app
     runnerScaleSetName: home-ops-runners
