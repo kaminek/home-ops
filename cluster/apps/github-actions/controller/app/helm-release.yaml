@@ -19,3 +19,8 @@ spec:
       retries: 3
   values:
     replicaCount: 1
+    # off unless this block is present; scraped via monitoring/podmonitor.yaml
+    metrics:
+      controllerManagerAddr: ":8080"
+      listenerAddr: ":8080"
+      listenerEndpoint: "/metrics"

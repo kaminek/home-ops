@@ -1,0 +1,16 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/grafana.integreatly.org/grafanadashboard_v1beta1.json
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: arc-autoscaling-runner-set
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      grafana.internal/instance: grafana
+  datasources:
+    - datasourceName: prometheus
+      inputName: DS_PROMETHEUS
+  # renovate: datasource=github-releases depName=actions/actions-runner-controller extractVersion=^gha-runner-scale-set-(?<version>.*)$
+  url: https://raw.githubusercontent.com/actions/actions-runner-controller/gha-runner-scale-set-0.14.2/docs/gha-runner-scale-set-controller/samples/grafana-dashboard/ARC-Autoscaling-Runner-Set-Monitoring.json
