@@ -24,17 +24,18 @@ spec:
     githubConfigSecret: gha-runner-scale-set-github-app
     runnerScaleSetName: home-ops-runners
     minRunners: 0
-    maxRunners: 1
+    maxRunners: 3
     containerMode:
       type: dind
     template:
       spec:
         containers:
           - name: runner
-            image: ghcr.io/actions/actions-runner:latest
+            image: ghcr.io/actions/actions-runner:2.337.0
             resources:
               requests:
                 cpu: 250m
                 memory: 256Mi
               limits:
-                memory: 1Gi
+                cpu: 1500m
+                memory: 2Gi
