@@ -1,0 +1,38 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/podmonitor_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: gha-rs-controller
+  labels:
+    app.kubernetes.io/part-of: gha-rs-controller
+    app.kubernetes.io/component: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - github-actions
+  selector:
+    matchLabels:
+      app.kubernetes.io/part-of: gha-rs-controller
+  podMetricsEndpoints:
+    - port: metrics
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/podmonitor_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: gha-rs-listener
+  labels:
+    app.kubernetes.io/part-of: gha-runner-scale-set
+    app.kubernetes.io/component: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - github-actions
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: runner-scale-set-listener
+  podMetricsEndpoints:
+    # listener pods get no named port from the chart, only --listener-metrics-addr
+    - targetPort: 8080
+      path: /metrics
