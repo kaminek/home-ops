@@ -37,6 +37,11 @@ spec:
       news_feed_enabled: "false"
     plugins:
       plugin_admin_enabled: "false"
+      # grafana/grafana#132528: on boot the background updater unloads each
+      # bundled plugin, then fails to write plugins-bundled (read-only rootfs,
+      # the operator's default) and never reloads it. Datasources then 404 with
+      # "Could not find plugin definition". Drop this once upstream fixes it.
+      preinstall_auto_update: "false"
     server:
       enable_gzip: "true"
       root_url: https://grafana.kaminek.me
