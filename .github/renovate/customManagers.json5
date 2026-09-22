@@ -4,7 +4,10 @@
     {
       "customType": "regex",
       "description": ["Process custom dependencies"],
-      "fileMatch": ["(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"],
+      "managerFilePatterns": [
+        "/(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$/",
+        "/(^|/)cluster/.+\\.ya?ml(?:\\.j2)?$/"
+      ],
       "matchStrings": [
         // # renovate: datasource=github-releases depName=k3s-io/k3s
         // k3s_release_version: &version v1.29.0+k3s1
@@ -20,7 +23,10 @@
     {
       "customType": "regex",
       "description": ["Process CloudnativePG Postgresql version"],
-      "fileMatch": ["(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$"],
+      "managerFilePatterns": [
+        "/(^|/)kubernetes/.+\\.ya?ml(?:\\.j2)?$/",
+        "/(^|/)cluster/.+\\.ya?ml(?:\\.j2)?$/"
+      ],
       "matchStrings": ["imageName: (?<depName>\\S+):(?<currentValue>.*\\-.*)"],
       "datasourceTemplate": "docker",
       "versioningTemplate": "redhat"
