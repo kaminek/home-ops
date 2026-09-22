@@ -24,7 +24,7 @@ spec:
     githubConfigSecret: gha-runner-scale-set-github-app
     runnerScaleSetName: home-ops-runners
     minRunners: 0
-    maxRunners: 3
+    maxRunners: 6
     containerMode:
       type: dind
     template:
