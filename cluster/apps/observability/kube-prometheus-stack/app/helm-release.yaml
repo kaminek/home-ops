@@ -152,8 +152,11 @@ spec:
         resources:
           requests:
             cpu: 100m
+            # ~917k active series OOMKilled repeatedly at 1500Mi; head block
+            # alone needs ~3GB. Node has 8Gi with ~900Mi of other requests.
+            memory: 3Gi
           limits:
-            memory: 1500Mi
+            memory: 3Gi
         nodeSelector:
           kubernetes.io/hostname: node0-a55d689e
         storageSpec:
