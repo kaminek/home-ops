@@ -7,6 +7,8 @@ metadata:
   labels:
     grafana.internal/instance: grafana
 spec:
+  # renovate: datasource=docker depName=docker.io/grafana/grafana
+  version: 12.1.0
   config:
     analytics:
       check_for_updates: "false"
@@ -14,9 +16,19 @@ spec:
       feedback_links_enabled: "false"
       reporting_enabled: "false"
     auth:
-      disable_login_form: "false"
+      disable_login_form: "true"
     auth.anonymous:
+      enabled: "false"
+    # Identity comes from oauth2-proxy, which fronts the ingress and allows
+    # only the authenticated-emails list. Grafana trusts its headers.
+    auth.proxy:
       enabled: "true"
+      header_name: X-Auth-Request-Email
+      header_property: email
+      auto_sign_up: "true"
+      sync_ttl: "60"
+    users:
+      auto_assign_org_role: Admin
     log:
       mode: console
     metrics:
@@ -25,11 +37,9 @@ spec:
       news_feed_enabled: "false"
     plugins:
       plugin_admin_enabled: "false"
-    security:
-      angular_support_enabled: "true"
     server:
       enable_gzip: "true"
-      root_url: https://grafana.turbo.ac
+      root_url: https://grafana.kaminek.me
   deployment:
     spec:
       strategy:
