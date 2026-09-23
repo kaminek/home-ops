@@ -102,46 +102,16 @@ resource "upcloud_firewall_rules" "nodes" {
 
   firewall_rule {
     action                 = "accept"
-    comment                = "Allow K8s api server"
-    destination_port_start = "6443"
-    destination_port_end   = "6443"
-    direction              = "in"
-    family                 = "IPv4"
-    protocol               = "tcp"
-    source_address_start   = "176.124.42.162"
-    source_address_end     = "176.124.42.162"
-  }
-
-  firewall_rule {
-    action               = "accept"
-    comment              = "Allow host DNSoUDP"
-    source_port_start    = "53"
-    source_port_end      = "53"
-    direction            = "in"
-    family               = "IPv4"
-    protocol             = "udp"
-    source_address_start = "1.1.1.1"
-    source_address_end   = "1.1.1.1"
-  }
-
-  firewall_rule {
-    action                 = "accept"
-    comment                = "Allow AdGuard DNS UDP"
-    destination_port_start = "53"
-    destination_port_end   = "53"
+    comment                = "Allow host DNSoUDP"
+    source_port_start      = "53"
+    source_port_end        = "53"
+    destination_port_start = "32768"
+    destination_port_end   = "60999"
     direction              = "in"
     family                 = "IPv4"
     protocol               = "udp"
-  }
-
-  firewall_rule {
-    action                 = "accept"
-    comment                = "Allow AdGuard DNS TCP"
-    destination_port_start = "53"
-    destination_port_end   = "53"
-    direction              = "in"
-    family                 = "IPv4"
-    protocol               = "tcp"
+    source_address_start   = "1.1.1.1"
+    source_address_end     = "1.1.1.1"
   }
 
   firewall_rule {
@@ -154,34 +124,28 @@ resource "upcloud_firewall_rules" "nodes" {
     protocol               = "tcp"
   }
 
+  # tailscaled listens on 41641; wireguard and STUN replies both land there.
+  # matching on source port instead let any sender reach any udp port.
   firewall_rule {
-    action            = "accept"
-    comment           = "Allow Tailscale wireguard proto back"
-    source_port_start = "41641"
-    source_port_end   = "41641"
-    direction         = "in"
-    family            = "IPv4"
-    protocol          = "udp"
+    action                 = "accept"
+    comment                = "Allow Tailscale wireguard"
+    destination_port_start = "41641"
+    destination_port_end   = "41641"
+    direction              = "in"
+    family                 = "IPv4"
+    protocol               = "udp"
   }
 
   firewall_rule {
-    action            = "accept"
-    comment           = "Allow Tailscale STUN proto back"
-    source_port_start = "3478"
-    source_port_end   = "3478"
-    direction         = "in"
-    family            = "IPv4"
-    protocol          = "udp"
-  }
-
-  firewall_rule {
-    action            = "accept"
-    comment           = "Allow NTP response"
-    source_port_start = "123"
-    source_port_end   = "123"
-    direction         = "in"
-    family            = "IPv4"
-    protocol          = "udp"
+    action                 = "accept"
+    comment                = "Allow NTP response"
+    source_port_start      = "123"
+    source_port_end        = "123"
+    destination_port_start = "32768" # chrony queries from random ephemeral ports
+    destination_port_end   = "60999"
+    direction              = "in"
+    family                 = "IPv4"
+    protocol               = "udp"
   }
 
   firewall_rule {
