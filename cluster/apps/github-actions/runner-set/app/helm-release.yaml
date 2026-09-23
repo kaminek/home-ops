@@ -24,11 +24,21 @@ spec:
     githubConfigSecret: gha-runner-scale-set-github-app
     runnerScaleSetName: home-ops-runners
     minRunners: 0
-    maxRunners: 6
+    maxRunners: 4
     containerMode:
       type: dind
     template:
       spec:
+        # prometheus is pinned to node0 with a node-local PVC and a 3Gi limit.
+        # keep builds off it so a compile cannot OOM the metrics stack.
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+                - matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: NotIn
+                      values: ["node0-a55d689e"]
         containers:
           - name: runner
             # required: helm replaces this list entry wholesale, so the
@@ -38,7 +48,11 @@ spec:
             resources:
               requests:
                 cpu: 250m
+                # requests reserve; limits are what the kernel OOM killer acts
+                # on. 6 runners x 2Gi put node memory limits at 170% of the 8GB
+                # physical, so cc1plus builds OOMed the host and took kubelet
+                # with them, flapping nodes NotReady.
                 memory: 256Mi
               limits:
                 cpu: 1
-                memory: 2Gi
+                memory: 1Gi
