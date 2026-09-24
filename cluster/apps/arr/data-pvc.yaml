@@ -1,0 +1,16 @@
+---
+# Shared /data (TRaSH layout: /data/{torrents,usenet,media}) so hardlinks work.
+# ponytail: node-local openebs-hostpath on the 80GB root disk; every pod mounting it
+# lands on the same node. Move to an UpCloud block volume / NFS when it fills up.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: arr-data
+  namespace: arr
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 40Gi
+  storageClassName: openebs-hostpath

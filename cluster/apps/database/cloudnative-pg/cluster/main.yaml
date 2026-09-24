@@ -62,3 +62,8 @@ spec:
         login: true
         passwordSecret:
           name: cnpg-vaultwarden-secret
+      - name: jellystat
+        ensure: present
+        login: true
+        passwordSecret:
+          name: cnpg-jellystat-secret
