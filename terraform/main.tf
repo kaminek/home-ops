@@ -100,8 +100,6 @@ resource "upcloud_firewall_rules" "nodes" {
     source_address_end     = data.sops_file.secrets.data.allowed_ip
   }
 
-  # up to 65535: coredns queries leave via cilium bpf masquerade, whose snat
-  # ports go past the host's 60999 ephemeral max.
   firewall_rule {
     action                 = "accept"
     comment                = "Allow DNSoUDP replies from 1.1.1.1"
