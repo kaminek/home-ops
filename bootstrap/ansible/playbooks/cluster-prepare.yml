@@ -40,10 +40,21 @@
             dest: /etc/systemd/resolved.conf
             content: |
               [Resolve]
-              DNS=1.1.1.1
+              DNS=1.1.1.1 1.0.0.1
               DNSStubListener=no
               Domains=~.
           notify: Restart resolved
+
+        # static file: tailscale (--accept-dns=false) and dhcp on eth1/eth2 must
+        # not own it; tailscaled once picked "openresolv" mode here and broke all
+        # host dns (ntp, image pulls).
+        - name: Networking | Static resolv.conf
+          ansible.builtin.copy:
+            dest: /etc/resolv.conf
+            follow: false
+            content: |
+              nameserver 1.1.1.1
+              nameserver 1.0.0.1
 
         - name: Networking | Create journald config directory
           ansible.builtin.file:
