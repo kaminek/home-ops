@@ -44,6 +44,7 @@
               DNSStubListener=no
               Domains=~.
           notify: Restart resolved
+          tags: [dns]
 
         # static file: tailscale (--accept-dns=false) and dhcp on eth1/eth2 must
         # not own it; tailscaled once picked "openresolv" mode here and broke all
@@ -52,9 +53,11 @@
           ansible.builtin.copy:
             dest: /etc/resolv.conf
             follow: false
+            mode: "0644"
             content: |
               nameserver 1.1.1.1
               nameserver 1.0.0.1
+          tags: [dns]
 
         - name: Networking | Create journald config directory
           ansible.builtin.file:
