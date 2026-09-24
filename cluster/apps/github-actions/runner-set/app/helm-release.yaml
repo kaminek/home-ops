@@ -39,6 +39,16 @@ spec:
                     - key: kubernetes.io/hostname
                       operator: NotIn
                       values: ["node0-a55d689e"]
+        # 4 runners packed on node1 (13 cc1plus, 3.7GB) OOMed the host; max 2
+        # per eligible node
+        topologySpreadConstraints:
+          - maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/component: runner
+                actions.github.com/scale-set-name: home-ops-runners
         containers:
           - name: runner
             # required: helm replaces this list entry wholesale, so the
@@ -51,8 +61,9 @@ spec:
                 # requests reserve; limits are what the kernel OOM killer acts
                 # on. 6 runners x 2Gi put node memory limits at 170% of the 8GB
                 # physical, so cc1plus builds OOMed the host and took kubelet
-                # with them, flapping nodes NotReady.
-                memory: 256Mi
+                # with them, flapping nodes NotReady. request = limit so the
+                # scheduler accounts for the real footprint.
+                memory: 1Gi
               limits:
                 cpu: 1
                 memory: 1Gi
