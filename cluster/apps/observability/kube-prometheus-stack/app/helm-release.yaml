@@ -35,6 +35,9 @@ spec:
     crds:
       enabled: false
     cleanPrometheusOperatorObjectNames: true
+    defaultRules:
+      disabled:
+        KubeCPUOvercommit: true
     alertmanager:
       ingress:
         enabled: true
@@ -132,15 +135,20 @@ spec:
         scrapeClasses:
           - name: add-cluster-label
             default: true
-            metricRelabelings:
-              # Preserve CNPG cluster label before overwriting
-              - action: replace
-                sourceLabels: [cluster]
-                targetLabel: cnpg_cluster
-                regex: (.+)
+            # target label, not metric relabel: synthetic `up` needs it too,
+            # KubeletDown joins on (cluster)
+            relabelings:
               - action: replace
                 targetLabel: cluster
                 replacement: homelab
+            metricRelabelings:
+              # Preserve CNPG cluster label (renamed exported_cluster on conflict)
+              - action: replace
+                sourceLabels: [exported_cluster]
+                targetLabel: cnpg_cluster
+                regex: (.+)
+              - action: labeldrop
+                regex: exported_cluster
         enableAdminAPI: true
         walCompression: true
         enableFeatures:
