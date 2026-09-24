@@ -11,7 +11,7 @@
   roles:
     - role: artis3n.tailscale.machine
       vars:
-        tailscale_args: "--ssh --advertise-exit-node --hostname={{ inventory_hostname }}"
+        tailscale_args: "--ssh --accept-dns=false --advertise-exit-node --hostname={{ inventory_hostname }}"
         tailscale_tags:
           - homelab
         tailscale_oauth_ephemeral: false
