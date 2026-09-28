@@ -20,12 +20,12 @@ pages:
                 links:
                   - title: YouTube
                     url: https://youtube.com
-                  - title: Spotify
-                    url: https://open.spotify.com
 
       - size: full
         widgets:
           - type: hacker-news
+
+          - type: lobsters
 
           - type: rss
             title: Tech News
