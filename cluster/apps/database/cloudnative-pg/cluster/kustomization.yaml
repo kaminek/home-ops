@@ -5,9 +5,11 @@ kind: Kustomization
 resources:
   - ./secret.sops.yaml
   - ./vaultwarden-secret.sops.yaml
+  - ./jellystat-secret.sops.yaml
   - ./backup-secret.sops.yaml
   - ./main.yaml
   - ./vaultwarden-database.yaml
+  - ./jellystat-database.yaml
   - ./scheduled-backup.yaml
   - ./prometheusrule.yaml
   - ./grafanadashboard.yaml

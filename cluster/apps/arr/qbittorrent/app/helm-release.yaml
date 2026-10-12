@@ -1,0 +1,140 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app qbittorrent
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 5.2.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      qbittorrent:
+        pod:
+          # gluetun serves DNS on localhost; cluster DNS is unreachable through the VPN firewall
+          dnsPolicy: None
+          dnsConfig:
+            nameservers: ["127.0.0.1"]
+          securityContext:
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+        initContainers:
+          # native sidecar: VPN + kill-switch is up before qBittorrent starts
+          gluetun:
+            image:
+              repository: ghcr.io/qdm12/gluetun
+              tag: v3.41.3
+            restartPolicy: Always
+            env:
+              VPN_TYPE: wireguard
+              FIREWALL_INPUT_PORTS: "8080"
+            envFrom:
+              - secretRef:
+                  name: gluetun-secret
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["/gluetun-entrypoint", "healthcheck"]
+                  periodSeconds: 5
+                  failureThreshold: 60
+            securityContext:
+              capabilities:
+                add: ["NET_ADMIN"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+        containers:
+          app:
+            image:
+              repository: ghcr.io/home-operations/qbittorrent
+              tag: 5.2.3
+            env:
+              TZ: Europe/London
+              QBT_WEBUI_PORT: &port 8080
+            securityContext:
+              runAsNonRoot: true
+              runAsUser: 1000
+              runAsGroup: 1000
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 2Gi
+    service:
+      app:
+        controller: qbittorrent
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: qbittorrent.kaminek.me
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: cloud-download
+          hajimari.io/group: Media
+        hosts:
+          - host: &host qbittorrent.kaminek.me
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *host
+            secretName: qbittorrent-tls
+    persistence:
+      config:
+        type: persistentVolumeClaim
+        storageClass: openebs-hostpath
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        retain: true
+        advancedMounts:
+          qbittorrent:
+            app:
+              - path: /config
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          qbittorrent:
+            app:
+              - path: /tmp
+      data:
+        existingClaim: arr-data
+        advancedMounts:
+          qbittorrent:
+            app:
+              - path: /data
