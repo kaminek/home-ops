@@ -54,7 +54,7 @@ spec:
             # required: helm replaces this list entry wholesale, so the
             # chart's dind-preset command is dropped if not repeated here
             command: ["/home/runner/run.sh"]
-            image: ghcr.io/actions/actions-runner:2.337.0
+            image: ghcr.io/actions/actions-runner:2.338.0
             resources:
               requests:
                 cpu: 250m
