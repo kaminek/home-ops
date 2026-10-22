@@ -10,9 +10,11 @@ spec:
     name: gha-runner-scale-set-controller
   interval: 30m
   install:
+    crds: CreateReplace
     remediation:
       retries: 3
   upgrade:
+    crds: CreateReplace
     cleanupOnFail: true
     remediation:
       strategy: rollback
