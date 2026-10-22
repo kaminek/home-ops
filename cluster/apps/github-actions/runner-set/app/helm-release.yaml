@@ -24,7 +24,9 @@ spec:
     githubConfigSecret: gha-runner-scale-set-github-app
     runnerScaleSetName: home-ops-runners
     minRunners: 0
-    maxRunners: 4
+    # ponytail: 2-core nodes have ~200m cpu free after node0 exclusion;
+    # 1 runner fits, raise once nodes get headroom
+    maxRunners: 1
     containerMode:
       type: dind
     template:
