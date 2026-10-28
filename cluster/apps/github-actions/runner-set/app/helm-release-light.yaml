@@ -1,0 +1,48 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gha-runner-scale-set-light
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: gha-runner-scale-set
+  interval: 30m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    # yamllint disable rule:line-length
+    githubConfigUrl: https://github.com/kalimet
+    # yamllint enable rule:line-length
+    githubConfigSecret: gha-runner-scale-set-github-app
+    # light jobs (lint, scans, renovate, release plumbing) so they stop
+    # holding the 3Gi build slots of home-ops-runners
+    runnerScaleSetName: home-ops-runners-light
+    minRunners: 0
+    maxRunners: 3
+    # dind kept: renovatebot/github-action runs renovate in docker
+    containerMode:
+      type: dind
+    template:
+      spec:
+        # ponytail: 1Gi fits 2 on node0 next to prometheus; bump if renovate OOMs
+        resources:
+          requests:
+            cpu: 100m
+            memory: 1Gi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        containers:
+          - name: runner
+            # required: helm replaces this list entry wholesale, so the
+            # chart's dind-preset command is dropped if not repeated here
+            command: ["/home/runner/run.sh"]
+            image: ghcr.io/actions/actions-runner:2.338.0
