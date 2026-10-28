@@ -24,13 +24,29 @@ spec:
     githubConfigSecret: gha-runner-scale-set-github-app
     runnerScaleSetName: home-ops-runners
     minRunners: 0
-    # ponytail: 2-core nodes have ~200m cpu free after node0 exclusion;
-    # 1 runner fits, raise once nodes get headroom
-    maxRunners: 1
+    # one per eligible node (node1, node2; see topology spread). #425 capped
+    # this at 1 because a 250m cpu request did not fit node2 (~220m free);
+    # the pod-level request below is 100m
+    maxRunners: 2
     containerMode:
       type: dind
     template:
       spec:
+        # pod-level resources (PodLevelResources, beta + on since 1.34) cap
+        # runner AND the dind sidecar together: the dind preset gives dind no
+        # resources, so docker builds were unbounded. requests = limits for
+        # memory so the scheduler accounts for the real footprint: 6 runners
+        # x 2Gi limits once put nodes at 170% of their 8GB and OOMed them.
+        # 3Gi: web's vite build runs with a 2GB heap inside dind, and
+        # type-aware oxlint needs ~2GB. cpu stays capped at 1 of the 2 cores
+        # (#369) so k3s/etcd on these control-plane nodes keep one.
+        resources:
+          requests:
+            cpu: 100m
+            memory: 3Gi
+          limits:
+            cpu: 1
+            memory: 3Gi
         # prometheus is pinned to node0 with a node-local PVC and a 3Gi limit.
         # keep builds off it so a compile cannot OOM the metrics stack.
         affinity:
@@ -41,8 +57,8 @@ spec:
                     - key: kubernetes.io/hostname
                       operator: NotIn
                       values: ["node0-a55d689e"]
-        # 4 runners packed on node1 (13 cc1plus, 3.7GB) OOMed the host; max 2
-        # per eligible node
+        # 4 runners packed on node1 (13 cc1plus, 3.7GB) OOMed the host; spread
+        # them (3Gi requests fit only one per node anyway)
         topologySpreadConstraints:
           - maxSkew: 1
             topologyKey: kubernetes.io/hostname
@@ -57,15 +73,3 @@ spec:
             # chart's dind-preset command is dropped if not repeated here
             command: ["/home/runner/run.sh"]
             image: ghcr.io/actions/actions-runner:2.338.0
-            resources:
-              requests:
-                cpu: 250m
-                # requests reserve; limits are what the kernel OOM killer acts
-                # on. 6 runners x 2Gi put node memory limits at 170% of the 8GB
-                # physical, so cc1plus builds OOMed the host and took kubelet
-                # with them, flapping nodes NotReady. request = limit so the
-                # scheduler accounts for the real footprint.
-                memory: 1Gi
-              limits:
-                cpu: 1
-                memory: 1Gi
