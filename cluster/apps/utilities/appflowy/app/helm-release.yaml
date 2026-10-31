@@ -40,7 +40,7 @@ spec:
   values:
     fullnameOverride: appflowy
     global:
-      domain: appflowy.kaminek.me
+      domain: doc.kaminek.me
       scheme: https
       wsScheme: wss
       postgresql:
@@ -52,7 +52,7 @@ spec:
         existingSecret: appflowy-secret
       s3:
         existingSecret: appflowy-secret
-        presignedUrlEndpoint: https://appflowy.kaminek.me/minio-api
+        presignedUrlEndpoint: https://doc.kaminek.me/minio-api
     # CNPG main cluster instead (cloudnative-pg/cluster/appflowy-database.yaml)
     postgresql:
       enabled: false
