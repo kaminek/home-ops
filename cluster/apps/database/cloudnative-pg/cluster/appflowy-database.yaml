@@ -1,0 +1,21 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: appflowy
+  namespace: database
+spec:
+  name: appflowy
+  owner: appflowy
+  cluster:
+    name: main
+  databaseReclaimPolicy: retain
+  # what AppFlowy's "Using External PostgreSQL" guide creates by hand
+  schemas:
+    - name: auth
+      owner: appflowy
+  extensions:
+    - name: vector
+    - name: pgcrypto
+    - name: uuid-ossp
+    - name: pg_trgm
