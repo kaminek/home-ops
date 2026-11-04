@@ -23,7 +23,7 @@ spec:
     # yamllint enable rule:line-length
     githubConfigSecret: gha-runner-scale-set-github-app
     # light jobs (lint, scans, renovate, release plumbing) so they stop
-    # holding the 3Gi build slots of home-ops-runners
+    # holding the 4Gi build slots of home-ops-runners
     runnerScaleSetName: home-ops-runners-light
     minRunners: 0
     maxRunners: 3
@@ -32,7 +32,7 @@ spec:
       type: dind
     template:
       spec:
-        # ponytail: 1Gi fits 2 on node0 next to prometheus; bump if renovate OOMs
+        # ponytail: 1Gi fits 1 on node0 next to prometheus, none beside a 4Gi heavy runner; bump if renovate OOMs
         resources:
           requests:
             cpu: 100m

@@ -37,16 +37,19 @@ spec:
         # resources, so docker builds were unbounded. requests = limits for
         # memory so the scheduler accounts for the real footprint: 6 runners
         # x 2Gi limits once put nodes at 170% of their 8GB and OOMed them.
-        # 3Gi: web's vite build runs with a 2GB heap inside dind, and
-        # type-aware oxlint needs ~2GB. cpu stays capped at 1 of the 2 cores
-        # (#369) so k3s/etcd on these control-plane nodes keep one.
+        # 4Gi: type-aware oxlint on core's connectors (tsgolint ~2.5GB) +
+        # runner/moon ~0.7GB hit 3Gi and killed the pod ("runner lost
+        # communication"); web's vite build runs with a 2GB heap inside dind.
+        # leaves no room for a light runner beside it on node1/node2. cpu
+        # stays capped at 1 of the 2 cores (#369) so k3s/etcd on these
+        # control-plane nodes keep one.
         resources:
           requests:
             cpu: 100m
-            memory: 3Gi
+            memory: 4Gi
           limits:
             cpu: 1
-            memory: 3Gi
+            memory: 4Gi
         # prometheus is pinned to node0 with a node-local PVC and a 3Gi limit.
         # keep builds off it so a compile cannot OOM the metrics stack.
         affinity:
@@ -58,7 +61,7 @@ spec:
                       operator: NotIn
                       values: ["node0-a55d689e"]
         # 4 runners packed on node1 (13 cc1plus, 3.7GB) OOMed the host; spread
-        # them (3Gi requests fit only one per node anyway)
+        # them (4Gi requests fit only one per node anyway)
         topologySpreadConstraints:
           - maxSkew: 1
             topologyKey: kubernetes.io/hostname
