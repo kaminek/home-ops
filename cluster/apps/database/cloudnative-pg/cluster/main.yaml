@@ -62,8 +62,8 @@ spec:
         login: true
         passwordSecret:
           name: cnpg-vaultwarden-secret
-      - name: appflowy
+      - name: affine
         ensure: present
         login: true
         passwordSecret:
-          name: cnpg-appflowy-secret
+          name: cnpg-affine-secret

@@ -10,5 +10,5 @@ resources:
   # disabled: JVM Metaspace OOM crash loop on 2.14.3
   # - stirling-pdf/ks.yaml
   - vaultwarden/ks.yaml
-  - appflowy/ks.yaml
+  - affine/ks.yaml
   - hajimari/ks.yaml

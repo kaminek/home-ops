@@ -1,0 +1,12 @@
+---
+# ponytail: node-local disk holds uploads and the token signing key (config/private.key), not backed up; move blobs to R2 if attachments matter
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: affine-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
