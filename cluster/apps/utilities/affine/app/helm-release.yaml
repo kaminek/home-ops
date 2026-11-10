@@ -68,25 +68,6 @@ spec:
                 memory: 32Mi
               limits:
                 memory: 256Mi
-    configMaps:
-      config:
-        data:
-          config.json: |
-            {
-              "$schema": "https://github.com/toeverything/affine/releases/latest/download/config.schema.json",
-              "server": {
-                "name": "Kaminek Docs",
-                "externalUrl": "https://doc.kaminek.me"
-              },
-              "auth": {
-                "allowSignup": false,
-                "allowSignupForOauth": false,
-                "newAccountShareActionDelay": 0
-              },
-              "flags": {
-                "allowGuestDemoWorkspace": false
-              }
-            }
     service:
       main:
         controller: main
@@ -127,9 +108,10 @@ spec:
             migrate: &data
               - path: /root/.affine
             app: *data
+      # config.json holds the google oauth secret; signup is google-only, gated by the consent screen test users
       config:
-        type: configMap
-        identifier: config
+        type: secret
+        name: affine-secret
         advancedMounts:
           main:
             migrate: &config
