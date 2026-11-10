@@ -61,7 +61,8 @@ spec:
               DOMAIN: https://vaultwarden.kaminek.me
               # Hardening options
               SIGNUPS_ALLOWED: "false"
-              INVITATIONS_ALLOWED: "false"
+              # org admins can invite users while signups stay closed
+              INVITATIONS_ALLOWED: "true"
               WEBSOCKET_ENABLED: "true"
               PASSWORD_HINTS_ALLOWED: "false"
               SHOW_PASSWORD_HINT: "false"
@@ -69,9 +70,9 @@ spec:
               LOGIN_RATELIMIT_MAX_BURST: "5"
               DISABLE_ICON_DOWNLOAD: "true"
               IP_HEADER: X-Forwarded-For
-              ORG_CREATION_USERS: ""
+              ORG_CREATION_USERS: kaminek92@gmail.com
               INCOMPLETE_2FA_TIME_LIMIT: "3"
-              SENDS_ALLOWED: "false"
+              SENDS_ALLOWED: "true"
               LOG_LEVEL: warn
               EXTENDED_LOGGING: "true"
             resources:
