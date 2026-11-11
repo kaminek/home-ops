@@ -59,7 +59,7 @@ spec:
           app:
             image:
               repository: docker.io/library/redis
-              tag: 8.8.4
+              tag: 8.10.3
             # ponytail: cache and job queue only, no persistence
             args: ["--save", "", "--appendonly", "no"]
             resources:
