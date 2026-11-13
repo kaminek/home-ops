@@ -1,0 +1,98 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app hermes-agent
+spec:
+  releaseName: *app
+  chart:
+    spec:
+      chart: app-template
+      version: 5.3.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  interval: 30m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      hermes-agent:
+        replicas: 1
+        # never two gateways on one data dir (upstream: corrupts sessions)
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: docker.io/nousresearch/hermes-agent
+              tag: v0.22.5@sha256:9c5561579f3ffdf333401797094ac3a743738d6c25d40f4331c7bf77b694238d
+            # keep image entrypoint: s6-overlay /init must be pid 1
+            args: ["gateway", "run"]
+            env:
+              TZ: Europe/Paris
+              HERMES_DASHBOARD: "1"
+              HERMES_DASHBOARD_PORT: "9119"
+            envFrom:
+              - secretRef:
+                  name: hermes-agent-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: &port 9119
+                  periodSeconds: 30
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 50m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+    service:
+      app:
+        controller: hermes-agent
+        ports:
+          http:
+            port: *port
+    ingress:
+      main:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: &host hermes.kaminek.me
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: robot
+          hajimari.io/group: Utilities
+          hajimari.io/appName: Hermes
+        hosts:
+          - host: *host
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *host
+            secretName: hermes-agent-tls
+    persistence:
+      data:
+        existingClaim: hermes-agent-data
+        globalMounts:
+          - path: /opt/data
