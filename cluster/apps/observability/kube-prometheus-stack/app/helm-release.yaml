@@ -109,6 +109,12 @@ spec:
           - action: drop
             sourceLabels: ["__name__"]
             regex: (apiserver|etcd)_.+_bucket
+          # k3s: the apiserver endpoint also serves kubelet/scheduler/workqueue/
+          # rest_client... (~18k series), already scraped by the kubelet job
+          - action: keep
+            sourceLabels: ["__name__"]
+            # rest_client_requests_total: KubeClientErrors alert
+            regex: (apiserver|etcd|apiextensions|watch_cache|aggregator|authentication|authorization)_.*|rest_client_requests_total
     # k3s: scheduler and controller-manager endpoints serve the same process
     # metrics as the apiserver (~140k series each), pure duplicates
     kubeControllerManager:
