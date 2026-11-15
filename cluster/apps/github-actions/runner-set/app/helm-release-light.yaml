@@ -32,7 +32,7 @@ spec:
       type: dind
     template:
       spec:
-        # ponytail: 1Gi fits 1 on node0 next to prometheus, none beside a 4Gi heavy runner; bump if renovate OOMs
+        # ponytail: 1Gi, none fit beside a 4Gi heavy runner on any node; bump if renovate OOMs
         resources:
           requests:
             cpu: 100m

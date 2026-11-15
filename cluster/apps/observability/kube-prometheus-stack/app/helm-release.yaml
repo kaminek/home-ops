@@ -57,6 +57,12 @@ spec:
               - alertmanager.kaminek.me
         pathType: Prefix
       alertmanagerSpec:
+        # chart default requests 200Mi, ~50Mi used
+        resources:
+          requests:
+            memory: 64Mi
+          limits:
+            memory: 256Mi
         useExistingSecret: true
         configSecret: alertmanager-secret
         storage:
@@ -78,6 +84,12 @@ spec:
           - action: drop
             sourceLabels: ["__name__"]
             regex: (rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)
+          # k3s runs every control-plane component in one process: /metrics on
+          # the kubelet re-exports the apiserver/etcd series (~110k), already
+          # scraped by the apiserver job
+          - action: drop
+            sourceLabels: ["__name__"]
+            regex: (apiserver|etcd|watch_cache|aggregator|apiextensions|authentication|authorization|admission)_.*
         cAdvisorRelabelings:
           - action: replace
             sourceLabels: [__metrics_path__]
@@ -93,18 +105,22 @@ spec:
           - action: drop
             sourceLabels: ["__name__"]
             regex: (apiserver_response_sizes_bucket|apiserver_watch_events_sizes_bucket)
+          # remaining apiserver/etcd histograms (~60k series), nothing here charts them
+          - action: drop
+            sourceLabels: ["__name__"]
+            regex: (apiserver|etcd)_.+_bucket
+    # k3s: scheduler and controller-manager endpoints serve the same process
+    # metrics as the apiserver (~140k series each), pure duplicates
     kubeControllerManager:
+      enabled: false
+    kubeEtcd:
       enabled: true
-      endpoints: &control-plane
+      endpoints:
         - 10.10.0.10
         - 10.10.0.11
         - 10.10.0.12
-    kubeEtcd:
-      enabled: true
-      endpoints: *control-plane
     kubeScheduler:
-      enabled: true
-      endpoints: *control-plane
+      enabled: false
     kubeProxy:
       enabled: false
     prometheus:
@@ -160,11 +176,12 @@ spec:
         resources:
           requests:
             cpu: 100m
-            # ~917k active series OOMKilled repeatedly at 1500Mi; head block
-            # alone needs ~3GB. Node has 8Gi with ~900Mi of other requests.
-            memory: 3Gi
+            # ~584k series needed 3Gi; k3s control-plane duplicates dropped
+            # (kubelet relabel, scheduler/controller-manager off) -> ~130k.
+            # frees node0 for a heavy runner
+            memory: 1536Mi
           limits:
-            memory: 3Gi
+            memory: 1536Mi
         nodeSelector:
           kubernetes.io/hostname: node0-a55d689e
         storageSpec:

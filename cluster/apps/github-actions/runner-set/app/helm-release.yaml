@@ -24,10 +24,10 @@ spec:
     githubConfigSecret: gha-runner-scale-set-github-app
     runnerScaleSetName: home-ops-runners
     minRunners: 0
-    # one per eligible node (node1, node2; see topology spread). #425 capped
-    # this at 1 because a 250m cpu request did not fit node2 (~220m free);
-    # the pod-level request below is 100m
-    maxRunners: 2
+    # one per node (see topology spread). #425 capped this at 1 because a
+    # 250m cpu request did not fit node2 (~220m free); the pod-level request
+    # below is 100m
+    maxRunners: 3
     containerMode:
       type: dind
     template:
@@ -50,16 +50,6 @@ spec:
           limits:
             cpu: 1
             memory: 4Gi
-        # prometheus is pinned to node0 with a node-local PVC and a 3Gi limit.
-        # keep builds off it so a compile cannot OOM the metrics stack.
-        affinity:
-          nodeAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              nodeSelectorTerms:
-                - matchExpressions:
-                    - key: kubernetes.io/hostname
-                      operator: NotIn
-                      values: ["node0-a55d689e"]
         # 4 runners packed on node1 (13 cc1plus, 3.7GB) OOMed the host; spread
         # them (4Gi requests fit only one per node anyway)
         topologySpreadConstraints:

@@ -49,10 +49,11 @@ spec:
           imagePullPolicy: Always
           resources:
             limits:
-              memory: 1Gi
+              memory: 256Mi
             requests:
               cpu: 50m
-              memory: 1Gi
+              # uses <100Mi
+              memory: 128Mi
           securityContext:
             allowPrivilegeEscalation: false
             privileged: false
