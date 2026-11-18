@@ -90,6 +90,10 @@ spec:
           - action: drop
             sourceLabels: ["__name__"]
             regex: (apiserver|etcd|watch_cache|aggregator|apiextensions|authentication|authorization|admission)_.*
+          # scheduler is off (see kubeScheduler) and no dashboard reads these (~4.7k)
+          - action: drop
+            sourceLabels: ["__name__"]
+            regex: scheduler_.*|rest_client_.+_bucket
         cAdvisorRelabelings:
           - action: replace
             sourceLabels: [__metrics_path__]

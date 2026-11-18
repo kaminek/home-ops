@@ -75,3 +75,8 @@ spec:
       serviceMonitor:
         enabled: true
         trustCRDsExist: true
+        # histograms the cilium dashboard doesn't chart (~2.9k series)
+        metricRelabelings:
+          - action: drop
+            sourceLabels: ["__name__"]
+            regex: cilium_(k8s|hive|agent_api|node_health|datapath|controllers|policy_selector|localredirectpolicy|identity_updater|act)_.+_bucket
