@@ -9,6 +9,11 @@ spec:
     - port: grafana
       path: /metrics
       honorLabels: true
+      # no grafana self-dashboard, histograms unused (~3k series)
+      metricRelabelings:
+        - action: drop
+          sourceLabels: ["__name__"]
+          regex: .+_bucket
   jobLabel: grafana
   namespaceSelector:
     matchNames:
