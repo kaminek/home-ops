@@ -80,6 +80,11 @@ spec:
           enabled: true
           namespaceSelector:
             any: true
+          # per-ingress histograms (~3.6k series); keep request_duration for latency panels
+          metricRelabelings:
+            - action: drop
+              sourceLabels: ["__name__"]
+              regex: nginx_ingress_controller_(request_size|response_size|response_duration_seconds|connect_duration_seconds|header_duration_seconds|bytes_sent)_bucket
       terminationGracePeriodSeconds: 120
       resources:
         requests:

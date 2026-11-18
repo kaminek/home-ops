@@ -29,5 +29,6 @@ spec:
     prometheus:
       service:
         enabled: true
+      # kube-prometheus-stack already scrapes coredns (job=coredns, used by its rules)
       monitor:
-        enabled: true
+        enabled: false
