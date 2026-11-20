@@ -12,3 +12,4 @@ resources:
   - vaultwarden/ks.yaml
   - affine/ks.yaml
   - hajimari/ks.yaml
+  - hermes-agent/ks.yaml
