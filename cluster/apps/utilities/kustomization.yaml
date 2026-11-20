@@ -6,6 +6,7 @@ resources:
   - namespace.yaml
   - adguard/ks.yaml
   - glance/ks.yaml
+  - open-seo/ks.yaml
   - smokeping/ks.yaml
   # disabled: JVM Metaspace OOM crash loop on 2.14.3
   # - stirling-pdf/ks.yaml
