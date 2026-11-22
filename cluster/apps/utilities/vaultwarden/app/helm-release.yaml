@@ -69,7 +69,6 @@ spec:
               LOGIN_RATELIMIT_SECONDS: "60"
               LOGIN_RATELIMIT_MAX_BURST: "5"
               DISABLE_ICON_DOWNLOAD: "true"
-              IP_HEADER: X-Forwarded-For
               ORG_CREATION_USERS: kaminek92@gmail.com
               INCOMPLETE_2FA_TIME_LIMIT: "3"
               SENDS_ALLOWED: "true"
