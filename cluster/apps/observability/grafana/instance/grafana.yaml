@@ -19,7 +19,7 @@ spec:
       disable_login_form: "true"
     auth.anonymous:
       enabled: "false"
-    # Identity comes from oauth2-proxy, which fronts the ingress and allows
+    # Identity comes from oauth2-proxy (gateway ExternalAuth), which allows
     # only the authenticated-emails list. Grafana trusts its headers.
     auth.proxy:
       enabled: "true"

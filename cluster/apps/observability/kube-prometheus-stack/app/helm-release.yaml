@@ -39,23 +39,6 @@ spec:
       disabled:
         KubeCPUOvercommit: true
     alertmanager:
-      ingress:
-        enabled: true
-        annotations:
-          external-dns.alpha.kubernetes.io/hostname: alertmanager.kaminek.me
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
-          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: bell-alert
-          hajimari.io/group: Monitoring
-        ingressClassName: external
-        hosts: ["alertmanager.kaminek.me"]
-        tls:
-          - secretName: alertmanager-tls
-            hosts:
-              - alertmanager.kaminek.me
-        pathType: Prefix
       route:
         main:
           enabled: true
@@ -159,23 +142,6 @@ spec:
     kubeProxy:
       enabled: false
     prometheus:
-      ingress:
-        enabled: true
-        annotations:
-          external-dns.alpha.kubernetes.io/hostname: prometheus.kaminek.me
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
-          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: database-search
-          hajimari.io/group: Monitoring
-        ingressClassName: external
-        hosts: ["prometheus.kaminek.me"]
-        pathType: Prefix
-        tls:
-          - secretName: prometheus-tls
-            hosts:
-              - prometheus.kaminek.me
       route:
         main:
           enabled: true
