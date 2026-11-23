@@ -43,8 +43,17 @@ spec:
         set_authorization_header = true
         set_xauthrequest = true
         reverse_proxy = true
-        skip_provider_button = false
-        redirect_url = "https://oauth.kaminek.me/oauth2/callback"
+        # gateway ExternalAuth sends the original path here; only a 200 lets
+        # the request through, anything else (302 to google) goes to the client.
+        # ponytail: oauth2-proxy's own unauthenticated 200s (/ping, /ready,
+        # /robots.txt, /oauth2/static/*) pass too, so those paths reach the
+        # protected apps without login. Fine while no app serves data there.
+        upstreams = [ "static://200" ]
+        skip_provider_button = true
+        # no redirect_url: callback is https://<requested host>/oauth2/callback,
+        # ExternalAuth only sees a relative path so a fixed oauth.kaminek.me
+        # callback would land users on oauth.kaminek.me/<path>.
+        # Every protected host needs its callback in the google oauth client.
 
     authenticatedEmailsFile:
       enabled: true
@@ -80,6 +89,17 @@ spec:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt-production
         external-dns.alpha.kubernetes.io/target: ingress.kaminek.me
+        gatus.home-operations.com/endpoint: |
+          path: /ping
+
+    gatewayApi:
+      enabled: true
+      gatewayRef:
+        name: external
+        namespace: networking
+      hostnames:
+        - oauth.kaminek.me
+      annotations:
         gatus.home-operations.com/endpoint: |
           path: /ping
 

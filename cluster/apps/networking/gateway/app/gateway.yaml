@@ -1,0 +1,26 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.networking.k8s.io/gateway_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: external
+  annotations:
+    external-dns.alpha.kubernetes.io/target: cluster.kaminek.me
+spec:
+  # cilium hostNetwork mode: envoy binds the listener port on every node,
+  # DNS points at the node IPs, envoy sees the real client IP
+  gatewayClassName: cilium
+  listeners:
+    # no :80 listener, the upcloud firewall only lets 443 in
+    - name: https
+      protocol: HTTPS
+      # parallel run: nginx-external still owns :443 (NodePort), test via
+      # tailscale/private IPs. Switch to 443 when nginx is removed.
+      port: 8443
+      hostname: "*.kaminek.me"
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        certificateRefs:
+          - name: kaminek-me-tls

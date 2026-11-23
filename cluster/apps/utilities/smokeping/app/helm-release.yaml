@@ -74,6 +74,34 @@ spec:
           - hosts:
               - *uri
             secretName: smokeping-tls
+    route:
+      main:
+        hostnames: ["ping.kaminek.me"]
+        parentRefs:
+          - name: external
+            namespace: networking
+        rules:
+          - backendRefs:
+              - identifier: main
+                port: http
+            filters:
+              - type: ExternalAuth
+                externalAuth:
+                  protocol: HTTP
+                  backendRef:
+                    name: oauth2-proxy
+                    namespace: networking
+                    port: 80
+                  http:
+                    allowedHeaders: ["Cookie"]
+                    allowedResponseHeaders: ["X-Auth-Request-Email"]
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: max-age=31449600; includeSubDomains
+            timeouts:
+              request: 0s # envoy default is 15s
     persistence:
       data:
         existingClaim: smokeping-data

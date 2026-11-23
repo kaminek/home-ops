@@ -56,6 +56,31 @@ spec:
             hosts:
               - alertmanager.kaminek.me
         pathType: Prefix
+      route:
+        main:
+          enabled: true
+          hostnames: ["alertmanager.kaminek.me"]
+          parentRefs: &parentRefs
+            - name: external
+              namespace: networking
+          filters: &filters
+            - type: ExternalAuth
+              externalAuth:
+                protocol: HTTP
+                backendRef:
+                  name: oauth2-proxy
+                  namespace: networking
+                  port: 80
+                http:
+                  allowedHeaders: ["Cookie"]
+                  allowedResponseHeaders: ["X-Auth-Request-Email"]
+            - type: ResponseHeaderModifier
+              responseHeaderModifier:
+                set:
+                  - name: Strict-Transport-Security
+                    value: max-age=31449600; includeSubDomains
+          timeouts: &timeouts
+            request: 0s # envoy default is 15s
       alertmanagerSpec:
         # chart default requests 200Mi, ~50Mi used
         resources:
@@ -151,6 +176,13 @@ spec:
           - secretName: prometheus-tls
             hosts:
               - prometheus.kaminek.me
+      route:
+        main:
+          enabled: true
+          hostnames: ["prometheus.kaminek.me"]
+          parentRefs: *parentRefs
+          filters: *filters
+          timeouts: *timeouts
       prometheusSpec:
         scrapeInterval: 30s # Must match interval in Grafana Helm chart
         ruleSelectorNilUsesHelmValues: false

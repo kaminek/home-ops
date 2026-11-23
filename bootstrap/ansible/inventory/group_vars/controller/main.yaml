@@ -19,6 +19,8 @@ k3s_server:
     - servicelb
     - metrics-server
     - coredns
+    # experimental channel CRDs are managed by flux (cluster/apps/networking/gateway)
+    - gateway-api-crd
     # - local-storage
   disable-network-policy: true
   disable-cloud-controller: true
