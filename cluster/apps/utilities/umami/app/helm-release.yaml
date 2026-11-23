@@ -34,7 +34,7 @@ spec:
           main:
             image:
               repository: ghcr.io/umami-software/umami
-              tag: v3.5.0
+              tag: 3.5.0
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
