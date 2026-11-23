@@ -58,12 +58,7 @@ spec:
                   secretKeyRef:
                     name: vaultwarden-secret
                     key: DATABASE_URL
-              # argon2 hash; /admin is also behind oauth2-proxy
-              ADMIN_TOKEN:
-                valueFrom:
-                  secretKeyRef:
-                    name: vaultwarden-secret
-                    key: ADMIN_TOKEN
+              # no ADMIN_TOKEN: /admin disabled, set one (argon2 hash) to re-enable
               DOMAIN: https://vaultwarden.kaminek.me
               # Hardening options
               SIGNUPS_ALLOWED: "false"
@@ -106,36 +101,17 @@ spec:
           - name: external
             namespace: networking
         rules:
-          - matches:
-              - path:
-                  type: PathPrefix
-                  value: /admin
-            backendRefs: &backend
+          - backendRefs:
               - identifier: main
                 port: http
             filters:
-              - type: ExternalAuth
-                externalAuth:
-                  protocol: HTTP
-                  backendRef:
-                    name: oauth2-proxy
-                    namespace: networking
-                    port: 80
-                  http:
-                    allowedHeaders: ["Cookie"]
-                    allowedResponseHeaders: ["X-Auth-Request-Email"]
-              - &hsts
-                type: ResponseHeaderModifier
+              - type: ResponseHeaderModifier
                 responseHeaderModifier:
                   set:
                     - name: Strict-Transport-Security
                       value: max-age=31449600; includeSubDomains
-            timeouts: &timeouts
+            timeouts:
               request: 0s # envoy default is 15s
-          - backendRefs: *backend
-            filters:
-              - *hsts
-            timeouts: *timeouts
       # single DOMAIN upstream: passkeys/2FA break on other hostnames
       legacy:
         hostnames: ["bitwarden.kaminek.me"]
