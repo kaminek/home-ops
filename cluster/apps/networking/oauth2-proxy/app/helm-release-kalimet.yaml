@@ -24,6 +24,10 @@ spec:
   values:
     replicaCount: 1
 
+    # env comes from extraEnv below; chart's own env + secret would duplicate it
+    # and clash with our oauth2-proxy-kalimet secret (ssa rejects duplicates)
+    proxyVarsAsSecrets: false
+
     config:
       clientID: ""
       clientSecret: ""
