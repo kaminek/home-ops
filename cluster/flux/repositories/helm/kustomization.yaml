@@ -11,6 +11,7 @@ resources:
   - ./hajimari.yaml
   - ./jetstack.yaml
   - ./prometheus-community.yaml
+  - ./ingress-nginx.yaml
   - ./cilium.yaml
   - ./openebs.yaml
   - ./coredns.yaml

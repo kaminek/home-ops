@@ -6,5 +6,6 @@ resources:
   - ./grafana.yaml
   - ./grafanadatasource.yaml
   - ./servicemonitor.yaml
+  - ./ingress.yaml
   - ./httproute.yaml
   - ./grafanadashboard.yaml
