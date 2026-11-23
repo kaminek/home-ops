@@ -85,50 +85,6 @@ spec:
         ports:
           http:
             port: 3000
-    ingress:
-      # tracker must stay public: visitors load the script and post events unauthenticated
-      public:
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/hostname: umami.kaminek.me
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          gatus.home-operations.com/endpoint: |
-            path: /api/heartbeat
-        hosts:
-          - host: &host umami.kaminek.me
-            paths:
-              - path: /script.js
-                pathType: Exact
-                service: &svc
-                  identifier: main
-                  port: http
-              - path: /api/send
-                pathType: Prefix
-                service: *svc
-              - path: /api/heartbeat
-                pathType: Exact
-                service: *svc
-        tls: &tls
-          - hosts:
-              - *host
-            secretName: umami-tls
-      # dashboard behind oauth2-proxy-kalimet, umami login still applies
-      main:
-        className: external
-        annotations:
-          nginx.ingress.kubernetes.io/auth-url: "https://oauth-kalimet.kaminek.me/oauth2/auth"
-          nginx.ingress.kubernetes.io/auth-signin: "https://oauth-kalimet.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: chart-line
-          hajimari.io/group: Utilities
-          hajimari.io/appName: Umami
-        hosts:
-          - host: *host
-            paths:
-              - path: /
-                pathType: Prefix
-                service: *svc
-        tls: *tls
     route:
       main:
         annotations:
@@ -160,7 +116,7 @@ spec:
                   set:
                     - name: Strict-Transport-Security
                       value: max-age=31449600; includeSubDomains
-          # dashboard behind oauth2-proxy, umami login still applies
+          # dashboard behind oauth2-proxy-kalimet, umami login still applies
           - backendRefs: *backend
             filters:
               - type: ExternalAuth
