@@ -1,0 +1,12 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: umami
+  namespace: database
+spec:
+  name: umami
+  owner: umami
+  cluster:
+    name: main
+  databaseReclaimPolicy: retain
