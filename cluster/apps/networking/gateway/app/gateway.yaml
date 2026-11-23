@@ -14,9 +14,7 @@ spec:
     # no :80 listener, the upcloud firewall only lets 443 in
     - name: https
       protocol: HTTPS
-      # parallel run: nginx-external still owns :443 (NodePort), test via
-      # tailscale/private IPs. Switch to 443 when nginx is removed.
-      port: 8443
+      port: 443
       hostname: "*.kaminek.me"
       allowedRoutes:
         namespaces:

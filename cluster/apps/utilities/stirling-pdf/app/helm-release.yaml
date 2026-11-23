@@ -49,32 +49,6 @@ spec:
         ports:
           http:
             port: 8080
-    ingress:
-      main:
-        enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/hostname: pdf.kaminek.me
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
-          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
-          nginx.ingress.kubernetes.io/proxy-body-size: "100m"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: file-pdf-box
-          hajimari.io/group: Utilities
-          hajimari.io/appName: Stirling PDF
-        hosts:
-          - host: &uri pdf.kaminek.me
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *uri
-            secretName: stirling-pdf-tls
     route:
       main:
         hostnames: ["pdf.kaminek.me"]
