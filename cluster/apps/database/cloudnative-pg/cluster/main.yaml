@@ -69,3 +69,8 @@ spec:
         login: true
         passwordSecret:
           name: cnpg-affine-secret
+      - name: umami
+        ensure: present
+        login: true
+        passwordSecret:
+          name: cnpg-umami-secret
