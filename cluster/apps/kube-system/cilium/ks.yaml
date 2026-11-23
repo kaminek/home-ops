@@ -10,8 +10,8 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  # dependsOn:
-  #   - name: certificates
+  dependsOn:
+    - name: gateway-api-crds # hubble-ui HTTPRoute uses ExternalAuth
   path: ./cluster/apps/kube-system/cilium/app
   prune: false
   sourceRef:

@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/gitrepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: gateway-api
+  namespace: flux-system
+spec:
+  interval: 2h
+  url: https://github.com/kubernetes-sigs/gateway-api
+  ref:
+    # must match the Gateway API version cilium supports
+    # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
+    tag: v1.6.3
+  ignore: |
+    /*
+    !/config/crd/experimental
