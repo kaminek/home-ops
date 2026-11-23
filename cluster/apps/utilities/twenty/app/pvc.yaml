@@ -1,0 +1,12 @@
+---
+# ponytail: node-local disk for attachments, not backed up; move to S3 (STORAGE_TYPE=s3) if attachments matter
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: twenty-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
