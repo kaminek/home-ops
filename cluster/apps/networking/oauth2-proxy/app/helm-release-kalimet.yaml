@@ -52,11 +52,11 @@ spec:
         # protected apps without login. Fine while no app serves data there.
         upstreams = [ "static://200" ]
         skip_provider_button = true
-        # same google client as oauth2-proxy; its callbacks must list this host too
         # no redirect_url: callback is https://<requested host>/oauth2/callback,
-        # ExternalAuth only sees a relative path so a fixed oauth-kalimet.kaminek.me
-        # callback would land users on oauth-kalimet.kaminek.me/<path>.
-        # Every protected host needs its callback in the google oauth client.
+        # ExternalAuth only sees a relative path so a fixed oauth.kaminek.me
+        # callback would land users on oauth.kaminek.me/<path>.
+        # Every protected host needs its callback in the google oauth client
+        # (same client as oauth2-proxy).
 
     # kalimet apps (umami, crm) allowlist, separate from the main instance
     authenticatedEmailsFile:
@@ -82,32 +82,6 @@ spec:
           secretKeyRef:
             name: oauth2-proxy-kalimet
             key: OAUTH2_PROXY_COOKIE_SECRET
-
-    ingress:
-      enabled: true
-      className: external
-      hosts:
-        - oauth-kalimet.kaminek.me
-      tls:
-        - hosts:
-            - oauth-kalimet.kaminek.me
-          secretName: oauth-kalimet-kaminek-me-tls
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-production
-        external-dns.alpha.kubernetes.io/target: ingress.kaminek.me
-        gatus.home-operations.com/endpoint: |
-          path: /ping
-
-    gatewayApi:
-      enabled: true
-      gatewayRef:
-        name: external
-        namespace: networking
-      hostnames:
-        - oauth-kalimet.kaminek.me
-      annotations:
-        gatus.home-operations.com/endpoint: |
-          path: /ping
 
     resources:
       requests:
