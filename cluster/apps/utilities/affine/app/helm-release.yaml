@@ -79,6 +79,27 @@ spec:
         ports:
           redis:
             port: 6379
+    ingress:
+      main:
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: doc.kaminek.me
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          hajimari.io/enable: "true"
+          hajimari.io/icon: notebook
+          hajimari.io/group: Utilities
+          hajimari.io/appName: AFFiNE
+        hosts:
+          - host: &host doc.kaminek.me
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - hosts:
+              - *host
+            secretName: affine-tls
     route:
       main:
         hostnames: ["doc.kaminek.me"]

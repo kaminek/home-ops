@@ -43,10 +43,12 @@ spec:
       - --cloudflare-dns-records-per-page=1000
       # - --cloudflare-proxied
       - --events
+      - --ignore-ingress-tls-spec
+      - --ingress-class=external
       - --default-targets=cluster.kaminek.me
       - --force-default-targets
     policy: sync
-    sources: ["crd", "gateway-httproute"]
+    sources: ["crd", "ingress", "gateway-httproute"]
     txtOwnerId: default
     txtPrefix: homelab.k8s.
     domainFilters: ["kaminek.me"]
