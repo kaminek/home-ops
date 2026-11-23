@@ -70,6 +70,7 @@ spec:
             - {name: AFFiNE, url: https://doc.kaminek.me, icon: mdi:notebook}
             - {name: Glance, url: https://glance.kaminek.me, icon: mdi:view-dashboard}
             - {name: Umami, url: https://umami.kaminek.me, icon: mdi:chart-line}
+            - {name: CRM, url: https://crm.kaminek.me, icon: mdi:account-group}
       groups:
         - name: Cloud
           links:

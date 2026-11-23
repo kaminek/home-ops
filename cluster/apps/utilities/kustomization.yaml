@@ -12,4 +12,5 @@ resources:
   - vaultwarden/ks.yaml
   - affine/ks.yaml
   - umami/ks.yaml
+  - twenty/ks.yaml
   - hajimari/ks.yaml

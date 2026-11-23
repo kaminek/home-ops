@@ -7,11 +7,13 @@ resources:
   - ./vaultwarden-secret.sops.yaml
   - ./affine-secret.sops.yaml
   - ./umami-secret.sops.yaml
+  - ./twenty-secret.sops.yaml
   - ./backup-secret.sops.yaml
   - ./main.yaml
   - ./vaultwarden-database.yaml
   - ./affine-database.yaml
   - ./umami-database.yaml
+  - ./twenty-database.yaml
   - ./scheduled-backup.yaml
   - ./prometheusrule.yaml
   - ./grafanadashboard.yaml

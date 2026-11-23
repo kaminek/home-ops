@@ -1,0 +1,178 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: twenty
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 5.3.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      main:
+        # single writer on the RWO volume and the db migrations
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+        containers:
+          # entrypoint runs db setup/migrations then the server
+          server:
+            image: &image
+              repository: docker.io/twentycrm/twenty
+              tag: v2.62.2
+            env: &env
+              PG_DATABASE_URL:
+                valueFrom:
+                  secretKeyRef:
+                    name: twenty-secret
+                    key: PG_DATABASE_URL
+              APP_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: twenty-secret
+                    key: APP_SECRET
+              SERVER_URL: https://crm.kaminek.me
+              REDIS_URL: redis://twenty-redis:6379
+              STORAGE_TYPE: local
+              NODE_PORT: "3000"
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+              capabilities:
+                drop: ["ALL"]
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: 3000
+              readiness: *probe
+              # first boot runs database:init + upgrade before listening
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthz
+                    port: 3000
+                  periodSeconds: 10
+                  failureThreshold: 60
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                memory: 2Gi
+          # same pod as server: shares the RWO local-storage volume
+          worker:
+            image: *image
+            args: ["yarn", "worker:prod"]
+            env:
+              <<: *env
+              DISABLE_DB_MIGRATIONS: "true"
+              DISABLE_CRON_JOBS_REGISTRATION: "true"
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 50m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+      redis:
+        containers:
+          app:
+            image:
+              repository: docker.io/library/redis
+              tag: 8.10.3
+            # ponytail: bullmq queue, no persistence; in-flight jobs lost on restart
+            args: ["--save", "", "--appendonly", "no", "--maxmemory-policy", "noeviction"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 256Mi
+    service:
+      main:
+        controller: main
+        ports:
+          http:
+            port: 3000
+      redis:
+        controller: redis
+        ports:
+          redis:
+            port: 6379
+    route:
+      main:
+        annotations:
+          gatus.home-operations.com/endpoint: |
+            path: /healthz
+        hostnames: ["crm.kaminek.me"]
+        parentRefs:
+          - name: external
+            namespace: networking
+        rules:
+          # healthz public for gatus
+          - matches:
+              - path:
+                  type: Exact
+                  value: /healthz
+            backendRefs: &backend
+              - identifier: main
+                port: http
+            filters:
+              - &hsts
+                type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: max-age=31449600; includeSubDomains
+          # ponytail: whole app behind oauth2-proxy-kalimet; api keys/webhooks from outside need public /rest, /graphql, /webhooks
+          - backendRefs: *backend
+            filters:
+              - type: ExternalAuth
+                externalAuth:
+                  protocol: HTTP
+                  backendRef:
+                    name: oauth2-proxy-kalimet
+                    namespace: networking
+                    port: 80
+                  http:
+                    allowedHeaders: ["Cookie"]
+                    allowedResponseHeaders: ["X-Auth-Request-Email"]
+              - *hsts
+            timeouts:
+              request: 0s # envoy default is 15s
+    persistence:
+      data:
+        existingClaim: twenty-data
+        advancedMounts:
+          main:
+            server: &data
+              - path: /app/packages/twenty-server/.local-storage
+            worker: *data
