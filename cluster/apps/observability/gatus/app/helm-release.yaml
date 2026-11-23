@@ -44,8 +44,10 @@ spec:
               repository: ghcr.io/home-operations/gatus-sidecar
               tag: 0.6.1
             args:
-              - --auto-httproute
-              - --enable-httproute
+              - --auto-ingress
+              - --enable-ingress
+              # - --auto-httproute
+              # - --enable-httproute
               - --enable-service
               - --output=/config/sidecar/gatus-sidecar.yaml
             restartPolicy: Always
@@ -113,6 +115,14 @@ spec:
                 - watch
                 - list
             - apiGroups:
+                - networking.k8s.io
+              resources:
+                - ingresses
+              verbs:
+                - get
+                - watch
+                - list
+            - apiGroups:
                 - gateway.networking.k8s.io
               resources:
                 - gateways
@@ -138,6 +148,31 @@ spec:
       app:
         endpoints:
           - port: http
+    ingress:
+      main:
+        enabled: true
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: gatus.kaminek.me
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
+          hajimari.io/enable: "true"
+          hajimari.io/icon: list-status
+          hajimari.io/group: Monitoring
+          hajimari.io/appName: Gatus
+        hosts:
+          - host: &uri gatus.kaminek.me
+            paths:
+              - path: /
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - hosts:
+              - *uri
+            secretName: gatus-tls
     route:
       main:
         hostnames: ["gatus.kaminek.me"]

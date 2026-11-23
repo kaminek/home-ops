@@ -77,6 +77,21 @@ spec:
             name: oauth2-proxy
             key: OAUTH2_PROXY_COOKIE_SECRET
 
+    ingress:
+      enabled: true
+      className: external
+      hosts:
+        - oauth.kaminek.me
+      tls:
+        - hosts:
+            - oauth.kaminek.me
+          secretName: oauth-kaminek-me-tls
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-production
+        external-dns.alpha.kubernetes.io/target: ingress.kaminek.me
+        gatus.home-operations.com/endpoint: |
+          path: /ping
+
     gatewayApi:
       enabled: true
       gatewayRef:
