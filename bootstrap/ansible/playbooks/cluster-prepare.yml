@@ -126,9 +126,8 @@
             dest: "/etc/modules-load.d/{{ item }}.conf"
           loop: [br_netfilter, overlay, rbd]
 
-        # upcloud image sets rp_filter=1 here; read last, it beats sysctl.d and
-        # makes eth0/eth2 strict -> envoy hostNetwork listener drops remote acks
-        - name: System Configuration | Drop distro rp_filter overrides
+        # devsec.hardening < 11 wrote rp_filter=1 here; read last, it beats sysctl.d
+        - name: System Configuration | Drop legacy rp_filter overrides
           ansible.builtin.lineinfile:
             path: /etc/sysctl.conf
             regexp: '^net\.ipv4\.conf\.(all|default)\.rp_filter'
@@ -142,6 +141,11 @@
             content: |
               net.ipv4.conf.*.rp_filter = 0
             mode: "0644"
+          register: rp_filter_file
+
+        - name: System Configuration | Apply rp_filter on every interface
+          ansible.builtin.command: sysctl --system
+          when: rp_filter_file.changed
 
         - name: System Configuration | Set sysctls
           ansible.posix.sysctl:
@@ -156,9 +160,6 @@
               net.ipv4.conf.all.forwarding: 1
               net.ipv4.conf.all.rp_filter: 0
               net.ipv4.conf.default.rp_filter: 0
-              # tailscale sets src_valid_mark=1: without this the kernel drops
-              # replies to cilium envoy from same-node pods (cilium#47591)
-              net.ipv4.conf.all.accept_local: 1
               net.ipv6.conf.all.forwarding: 1
               net.bridge.bridge-nf-call-iptables: 1
               net.bridge.bridge-nf-call-ip6tables: 1
