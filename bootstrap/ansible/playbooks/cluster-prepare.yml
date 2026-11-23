@@ -126,6 +126,27 @@
             dest: "/etc/modules-load.d/{{ item }}.conf"
           loop: [br_netfilter, overlay, rbd]
 
+        # devsec.hardening < 11 wrote rp_filter=1 here; read last, it beats sysctl.d
+        - name: System Configuration | Drop legacy rp_filter overrides
+          ansible.builtin.lineinfile:
+            path: /etc/sysctl.conf
+            regexp: '^net\.ipv4\.conf\.(all|default)\.rp_filter'
+            state: absent
+
+        # all=0 alone doesn't relax eth0/eth2 (effective value is max(all, iface));
+        # sorts after cilium's 99-zzz-override_cilium.conf
+        - name: System Configuration | Disable rp_filter on every interface
+          ansible.builtin.copy:
+            dest: /etc/sysctl.d/99-zzz-rp-filter.conf
+            content: |
+              net.ipv4.conf.*.rp_filter = 0
+            mode: "0644"
+          register: rp_filter_file
+
+        - name: System Configuration | Apply rp_filter on every interface
+          ansible.builtin.command: sysctl --system
+          when: rp_filter_file.changed
+
         - name: System Configuration | Set sysctls
           ansible.posix.sysctl:
             name: "{{ item.key }}"

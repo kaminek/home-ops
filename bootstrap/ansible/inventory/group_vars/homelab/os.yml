@@ -19,6 +19,14 @@ hidepid_option: 0
 sysctl_overwrite:
   net.ipv4.ip_forward: 1
   net.ipv6.conf.all.forwarding: 1
+  # os_hardening defaults rp_filter to 1 (strict). With tailscale's
+  # src_valid_mark=1 that drops remote acks to the cilium envoy hostNetwork
+  # listener; cilium wants it off
+  net.ipv4.conf.all.rp_filter: 0
+  net.ipv4.conf.default.rp_filter: 0
+  # tailscale's src_valid_mark=1 drops replies to envoy from same-node pods
+  # (cilium#47591)
+  net.ipv4.conf.all.accept_local: 1
 # ssh hardening
 network_ipv6_enable: false
 ssh_permit_root_login: "yes"
