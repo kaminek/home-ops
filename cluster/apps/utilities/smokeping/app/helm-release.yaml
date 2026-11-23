@@ -49,31 +49,6 @@ spec:
         ports:
           http:
             port: 80
-    ingress:
-      main:
-        enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/hostname: ping.kaminek.me
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
-          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: lan-pending
-          hajimari.io/group: Monitoring
-          hajimari.io/appName: SmokePing
-        hosts:
-          - host: &uri ping.kaminek.me
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: main
-                  port: http
-        tls:
-          - hosts:
-              - *uri
-            secretName: smokeping-tls
     route:
       main:
         hostnames: ["ping.kaminek.me"]

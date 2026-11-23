@@ -73,31 +73,6 @@ spec:
         ports:
           http:
             port: *port
-    ingress:
-      main:
-        enabled: true
-        className: external
-        annotations:
-          external-dns.alpha.kubernetes.io/hostname: glance.kaminek.me
-          cert-manager.io/cluster-issuer: letsencrypt-production
-          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
-          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
-          hajimari.io/enable: "true"
-          hajimari.io/icon: view-dashboard
-          hajimari.io/group: Utilities
-          hajimari.io/appName: Glance
-        hosts:
-          - host: &uri glance.kaminek.me
-            paths:
-              - path: /
-                pathType: Prefix
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - hosts:
-              - *uri
-            secretName: glance-tls
     route:
       main:
         hostnames: ["glance.kaminek.me"]
