@@ -11,4 +11,5 @@ resources:
   # - stirling-pdf/ks.yaml
   - vaultwarden/ks.yaml
   - affine/ks.yaml
+  - umami/ks.yaml
   - hajimari/ks.yaml
