@@ -83,8 +83,8 @@ spec:
                   failureThreshold: 60
             resources:
               requests:
-                cpu: 100m
-                memory: 512Mi
+                cpu: 500m
+                memory: 768Mi
               limits:
                 memory: 2Gi
           # same pod as server: shares the RWO local-storage volume
@@ -98,10 +98,10 @@ spec:
             securityContext: *securityContext
             resources:
               requests:
-                cpu: 50m
-                memory: 256Mi
+                cpu: 200m
+                memory: 768Mi
               limits:
-                memory: 1Gi
+                memory: 2Gi
       redis:
         containers:
           app:
@@ -152,7 +152,22 @@ spec:
                   set:
                     - name: Strict-Transport-Security
                       value: max-age=31449600; includeSubDomains
-          # ponytail: whole app behind oauth2-proxy-kalimet; api keys/webhooks from outside need public /rest, /graphql, /webhooks
+          # hashed frontend bundle (public open-source code, no user data):
+          # skip the per-file ext auth round trip and let browsers cache it
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /assets/
+            backendRefs: *backend
+            filters:
+              - type: ResponseHeaderModifier
+                responseHeaderModifier:
+                  set:
+                    - name: Strict-Transport-Security
+                      value: max-age=31449600; includeSubDomains
+                    - name: Cache-Control
+                      value: public, max-age=31536000, immutable
+          # ponytail: rest of app behind oauth2-proxy-kalimet; api keys/webhooks from outside need public /rest, /graphql, /webhooks
           - backendRefs: *backend
             filters:
               - type: ExternalAuth
