@@ -63,6 +63,7 @@ spec:
       enabled: true
       restricted_access: |
         kaminek92@gmail.com
+        hamouda20021@gmail.com
 
     extraEnv:
       - name: OAUTH2_PROXY_CLIENT_ID
