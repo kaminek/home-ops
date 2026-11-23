@@ -20,7 +20,7 @@ spec:
     secretRef:
       name: sops-age
   dependsOn:
-    - name: gateway
+    - name: nginx-external
   wait: true
   interval: 30m
   retryInterval: 1m

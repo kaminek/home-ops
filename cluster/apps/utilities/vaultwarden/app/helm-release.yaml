@@ -74,8 +74,7 @@ spec:
               LOGIN_RATELIMIT_SECONDS: "60"
               LOGIN_RATELIMIT_MAX_BURST: "5"
               DISABLE_ICON_DOWNLOAD: "true"
-              # set by envoy from the TCP peer; XFF and X-Real-IP pass through client-controlled
-              IP_HEADER: X-Envoy-External-Address
+              IP_HEADER: X-Forwarded-For
               ORG_CREATION_USERS: kaminek92@gmail.com
               INCOMPLETE_2FA_TIME_LIMIT: "3"
               SENDS_ALLOWED: "true"
@@ -93,12 +92,68 @@ spec:
         ports:
           http:
             port: 80
+    ingress:
+      main:
+        className: external
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: vaultwarden.kaminek.me,bitwarden.kaminek.me
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          gatus.home-operations.com/endpoint: |
+            path: /alive
+          hajimari.io/enable: "true"
+          hajimari.io/icon: shield-key
+          hajimari.io/group: Security
+          hajimari.io/appName: Vaultwarden
+        hosts:
+          - host: vaultwarden.kaminek.me
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - hosts:
+              - vaultwarden.kaminek.me
+              - bitwarden.kaminek.me
+            secretName: vaultwarden-tls
+      # single DOMAIN upstream: passkeys/2FA break on other hostnames
+      legacy:
+        className: external
+        annotations:
+          nginx.ingress.kubernetes.io/permanent-redirect: https://vaultwarden.kaminek.me
+        hosts:
+          - host: bitwarden.kaminek.me
+            paths:
+              - path: /
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - hosts:
+              - bitwarden.kaminek.me
+            secretName: vaultwarden-tls
+      admin:
+        className: external
+        annotations:
+          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
+        hosts:
+          - host: vaultwarden.kaminek.me
+            paths:
+              - path: /admin
+                service:
+                  identifier: main
+                  port: http
+        tls:
+          - hosts:
+              - vaultwarden.kaminek.me
+            secretName: vaultwarden-tls
     route:
       main:
         annotations:
           gatus.home-operations.com/endpoint: |
             path: /alive
-        hostnames: ["vaultwarden.kaminek.me"]
+        hostnames: ["vaultwarden.kaminek.me", "bitwarden.kaminek.me"]
         parentRefs:
           - name: external
             namespace: networking
@@ -133,18 +188,6 @@ spec:
             filters:
               - *hsts
             timeouts: *timeouts
-      # single DOMAIN upstream: passkeys/2FA break on other hostnames
-      legacy:
-        hostnames: ["bitwarden.kaminek.me"]
-        parentRefs:
-          - name: external
-            namespace: networking
-        rules:
-          - filters:
-              - type: RequestRedirect
-                requestRedirect:
-                  hostname: vaultwarden.kaminek.me
-                  statusCode: 301
     persistence:
       data:
         existingClaim: vaultwarden-data

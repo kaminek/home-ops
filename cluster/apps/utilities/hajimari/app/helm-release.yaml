@@ -49,26 +49,6 @@ spec:
       defaultEnable: false
       namespaceSelector:
         any: true
-      # hajimari only discovers Ingresses, apps behind the gateway are listed here
-      customApps:
-        - group: Monitoring
-          apps:
-            - {name: Alertmanager, url: https://alertmanager.kaminek.me, icon: mdi:bell-alert}
-            - {name: Gatus, url: https://gatus.kaminek.me, icon: mdi:list-status}
-            - {name: Grafana, url: https://grafana.kaminek.me, icon: mdi:chart-areaspline}
-            - {name: Prometheus, url: https://prometheus.kaminek.me, icon: mdi:database-search}
-            - {name: SmokePing, url: https://ping.kaminek.me, icon: mdi:lan-pending}
-        - group: Network
-          apps:
-            - {name: AdGuard, url: https://adguard.kaminek.me, icon: mdi:shield-check}
-            - {name: Hubble, url: https://hubble.kaminek.me, icon: mdi:lan}
-        - group: Security
-          apps:
-            - {name: Vaultwarden, url: https://vaultwarden.kaminek.me, icon: mdi:shield-key}
-        - group: Utilities
-          apps:
-            - {name: AFFiNE, url: https://doc.kaminek.me, icon: mdi:notebook}
-            - {name: Glance, url: https://glance.kaminek.me, icon: mdi:view-dashboard}
       groups:
         - name: Cloud
           links:
@@ -105,3 +85,21 @@ spec:
         memory: 128Mi
       limits:
         memory: 256Mi
+    ingress:
+      main:
+        enabled: true
+        ingressClassName: external
+        annotations:
+          external-dns.alpha.kubernetes.io/hostname: dashboard.kaminek.me
+          cert-manager.io/cluster-issuer: letsencrypt-production
+          nginx.ingress.kubernetes.io/auth-url: "https://oauth.kaminek.me/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth.kaminek.me/oauth2/start?rd=$scheme://$host$request_uri"
+        hosts:
+          - host: &uri dashboard.kaminek.me
+            paths:
+              - path: /
+                pathType: Prefix
+        tls:
+          - hosts:
+              - *uri
+            secretName: hajimari-tls
