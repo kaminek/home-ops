@@ -1,0 +1,116 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app oauth2-proxy-kalimet
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: oauth2-proxy
+      version: 10.7.4
+      sourceRef:
+        kind: HelmRepository
+        name: oauth2-proxy
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    replicaCount: 1
+
+    config:
+      clientID: ""
+      clientSecret: ""
+      cookieSecret: ""
+      configFile: |
+        provider = "google"
+        email_domains = ["*"]
+        authenticated_emails_file = "/etc/oauth2-proxy/authenticated-emails.txt"
+        cookie_secure = true
+        cookie_httponly = true
+        cookie_expire = "168h"
+        cookie_refresh = "1h"
+        # own cookie: shared .kaminek.me domain would clash with the main instance
+        cookie_name = "_oauth2_proxy_kalimet"
+        cookie_domains = [".kaminek.me"]
+        whitelist_domains = [".kaminek.me"]
+        pass_access_token = true
+        pass_authorization_header = true
+        set_authorization_header = true
+        set_xauthrequest = true
+        reverse_proxy = true
+        # gateway ExternalAuth sends the original path here; only a 200 lets
+        # the request through, anything else (302 to google) goes to the client.
+        # ponytail: oauth2-proxy's own unauthenticated 200s (/ping, /ready,
+        # /robots.txt, /oauth2/static/*) pass too, so those paths reach the
+        # protected apps without login. Fine while no app serves data there.
+        upstreams = [ "static://200" ]
+        skip_provider_button = true
+        # same google client as oauth2-proxy; its callbacks must list this host too
+        # no redirect_url: callback is https://<requested host>/oauth2/callback,
+        # ExternalAuth only sees a relative path so a fixed oauth-kalimet.kaminek.me
+        # callback would land users on oauth-kalimet.kaminek.me/<path>.
+        # Every protected host needs its callback in the google oauth client.
+
+    # kalimet apps (umami, crm) allowlist, separate from the main instance
+    authenticatedEmailsFile:
+      enabled: true
+      restricted_access: |
+        kaminek92@gmail.com
+
+    extraEnv:
+      - name: OAUTH2_PROXY_CLIENT_ID
+        valueFrom:
+          secretKeyRef:
+            name: oauth2-proxy
+            key: OAUTH2_PROXY_CLIENT_ID
+      - name: OAUTH2_PROXY_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: oauth2-proxy
+            key: OAUTH2_PROXY_CLIENT_SECRET
+      # own cookie secret: sessions not readable across instances
+      - name: OAUTH2_PROXY_COOKIE_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: oauth2-proxy-kalimet
+            key: OAUTH2_PROXY_COOKIE_SECRET
+
+    ingress:
+      enabled: true
+      className: external
+      hosts:
+        - oauth-kalimet.kaminek.me
+      tls:
+        - hosts:
+            - oauth-kalimet.kaminek.me
+          secretName: oauth-kalimet-kaminek-me-tls
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-production
+        external-dns.alpha.kubernetes.io/target: ingress.kaminek.me
+        gatus.home-operations.com/endpoint: |
+          path: /ping
+
+    gatewayApi:
+      enabled: true
+      gatewayRef:
+        name: external
+        namespace: networking
+      hostnames:
+        - oauth-kalimet.kaminek.me
+      annotations:
+        gatus.home-operations.com/endpoint: |
+          path: /ping
+
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 128Mi

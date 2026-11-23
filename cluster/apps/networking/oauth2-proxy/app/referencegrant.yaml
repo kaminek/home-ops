@@ -20,3 +20,6 @@ spec:
     - group: ""
       kind: Service
       name: oauth2-proxy
+    - group: ""
+      kind: Service
+      name: oauth2-proxy-kalimet
