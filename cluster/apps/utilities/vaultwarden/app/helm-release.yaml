@@ -120,7 +120,7 @@ spec:
       legacy:
         className: external
         annotations:
-          nginx.ingress.kubernetes.io/permanent-redirect: https://vaultwarden.kaminek.me$request_uri
+          nginx.ingress.kubernetes.io/permanent-redirect: https://vaultwarden.kaminek.me
         hosts:
           - host: bitwarden.kaminek.me
             paths:
