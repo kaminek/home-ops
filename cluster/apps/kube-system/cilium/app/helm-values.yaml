@@ -29,6 +29,9 @@ envoy:
       keepCapNetBindService: true
 gatewayAPI:
   enabled: true
+  # offer h2 to browsers (no alpn = http/1.1 only, 6 conns/host);
+  # also enables appProtocol, backends without it stay http/1.1
+  enableAlpn: true
   hostNetwork:
     enabled: true
 hubble:
