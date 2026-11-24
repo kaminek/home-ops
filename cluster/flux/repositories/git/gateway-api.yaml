@@ -11,7 +11,7 @@ spec:
   ref:
     # must match the Gateway API version cilium supports
     # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
-    tag: v1.6.3
+    tag: v1.7.0
   ignore: |
     /*
     !/config/crd/experimental
