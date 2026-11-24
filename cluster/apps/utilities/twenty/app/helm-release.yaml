@@ -107,7 +107,7 @@ spec:
           app:
             image:
               repository: docker.io/library/redis
-              tag: 8.10.3
+              tag: 8.12.0
             # ponytail: bullmq queue, no persistence; in-flight jobs lost on restart
             args: ["--save", "", "--appendonly", "no", "--maxmemory-policy", "noeviction"]
             resources:
