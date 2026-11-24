@@ -55,7 +55,21 @@ spec:
                     key: APP_SECRET
               SERVER_URL: https://crm.kaminek.me
               REDIS_URL: redis://twenty-redis:6379
-              STORAGE_TYPE: local
+              # files (attachments, avatars) in r2 bucket crm, eu jurisdiction
+              STORAGE_TYPE: s3
+              STORAGE_S3_NAME: crm
+              STORAGE_S3_REGION: auto
+              STORAGE_S3_ENDPOINT: https://47dc2e8ccaf9538255dd55cb3fc09e7c.eu.r2.cloudflarestorage.com
+              STORAGE_S3_ACCESS_KEY_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: twenty-secret
+                    key: STORAGE_S3_ACCESS_KEY_ID
+              STORAGE_S3_SECRET_ACCESS_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: twenty-secret
+                    key: STORAGE_S3_SECRET_ACCESS_KEY
               NODE_PORT: "3000"
             securityContext: &securityContext
               allowPrivilegeEscalation: false
@@ -179,11 +193,3 @@ spec:
               - *hsts
             timeouts:
               request: 0s # envoy default is 15s
-    persistence:
-      data:
-        existingClaim: twenty-data
-        advancedMounts:
-          main:
-            server: &data
-              - path: /app/packages/twenty-server/.local-storage
-            worker: *data
