@@ -73,7 +73,17 @@ spec:
                   secretKeyRef:
                     name: umami-secret
                     key: APP_SECRET
+              TWO_FACTOR_ENCRYPTION_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: umami-secret
+                    key: TWO_FACTOR_ENCRYPTION_KEY
               DISABLE_TELEMETRY: "1"
+              # renovate handles upgrades
+              DISABLE_UPDATES: "1"
+              # ad blockers drop /api/send: tracker posts here instead, gateway
+              # rewrites it back (next's own rewrite is baked at image build)
+              COLLECT_API_ENDPOINT: /api/k
               # real client ip for geo, set by envoy from the TCP peer
               CLIENT_IP_HEADER: X-Envoy-External-Address
               GEOLITE_DB_PATH: /geo/city.mmdb
@@ -146,6 +156,31 @@ spec:
                   set:
                     - name: Strict-Transport-Security
                       value: max-age=31449600; includeSubDomains
+          # ad-block safe aliases: /k.js -> /script.js, /api/k -> /api/send
+          - matches:
+              - path:
+                  type: Exact
+                  value: /k.js
+            backendRefs: *backend
+            filters:
+              - type: URLRewrite
+                urlRewrite:
+                  path:
+                    type: ReplaceFullPath
+                    replaceFullPath: /script.js
+              - *hsts
+          - matches:
+              - path:
+                  type: Exact
+                  value: /api/k
+            backendRefs: *backend
+            filters:
+              - type: URLRewrite
+                urlRewrite:
+                  path:
+                    type: ReplaceFullPath
+                    replaceFullPath: /api/send
+              - *hsts
           # dashboard behind oauth2-proxy-kalimet, umami login still applies
           - backendRefs: *backend
             filters:
