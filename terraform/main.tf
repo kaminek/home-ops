@@ -3,6 +3,24 @@ locals {
   flavour            = "DEV-2xCPU-8GB"
   region             = "uk-lon1"
   cloudflare_zone_id = data.sops_file.secrets.data.cloudflare_zone_id
+  # https://www.cloudflare.com/ips-v4
+  cloudflare_ipv4 = [
+    "173.245.48.0/20",
+    "103.21.244.0/22",
+    "103.22.200.0/22",
+    "103.31.4.0/22",
+    "141.101.64.0/18",
+    "108.162.192.0/18",
+    "190.93.240.0/20",
+    "188.114.96.0/20",
+    "197.234.240.0/22",
+    "198.41.128.0/17",
+    "162.158.0.0/15",
+    "104.16.0.0/13",
+    "104.24.0.0/14",
+    "172.64.0.0/13",
+    "131.0.72.0/22",
+  ]
 }
 
 resource "upcloud_network" "private_network" {
@@ -128,14 +146,20 @@ resource "upcloud_firewall_rules" "nodes" {
     source_address_end     = "1.0.0.1"
   }
 
-  firewall_rule {
-    action                 = "accept"
-    comment                = "Allow HTTPS traffic"
-    destination_port_start = "443"
-    destination_port_end   = "443"
-    direction              = "in"
-    family                 = "IPv4"
-    protocol               = "tcp"
+  # origin lock: apps are proxied by cloudflare (external-dns --cloudflare-proxied)
+  dynamic "firewall_rule" {
+    for_each = local.cloudflare_ipv4
+    content {
+      action                 = "accept"
+      comment                = "Allow HTTPS from Cloudflare"
+      destination_port_start = "443"
+      destination_port_end   = "443"
+      direction              = "in"
+      family                 = "IPv4"
+      protocol               = "tcp"
+      source_address_start   = cidrhost(firewall_rule.value, 0)
+      source_address_end     = cidrhost(firewall_rule.value, -1)
+    }
   }
 
   # tailscaled listens on 41641; wireguard and STUN replies both land there.

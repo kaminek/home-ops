@@ -74,8 +74,8 @@ spec:
                     name: umami-secret
                     key: APP_SECRET
               DISABLE_TELEMETRY: "1"
-              # real client ip for geo, set by envoy from the TCP peer
-              CLIENT_IP_HEADER: X-Envoy-External-Address
+              # real client ip for geo, set by cloudflare
+              CLIENT_IP_HEADER: CF-Connecting-IP
               GEOLITE_DB_PATH: /geo/city.mmdb
             probes:
               liveness: &probe

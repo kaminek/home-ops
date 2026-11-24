@@ -8,7 +8,8 @@ metadata:
     external-dns.alpha.kubernetes.io/target: cluster.kaminek.me
 spec:
   # cilium hostNetwork mode: envoy binds the listener port on every node,
-  # DNS points at the node IPs, envoy sees the real client IP
+  # DNS points at the node IPs behind cloudflare proxy, envoy sees
+  # cloudflare IPs; real client IP is in CF-Connecting-IP
   gatewayClassName: cilium
   listeners:
     # no :80 listener, the upcloud firewall only lets 443 in
