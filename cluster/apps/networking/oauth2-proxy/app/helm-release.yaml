@@ -43,6 +43,7 @@ spec:
         set_authorization_header = true
         set_xauthrequest = true
         reverse_proxy = true
+        real_client_ip_header = "CF-Connecting-IP"
         # gateway ExternalAuth sends the original path here; only a 200 lets
         # the request through, anything else (302 to google) goes to the client.
         # ponytail: oauth2-proxy's own unauthenticated 200s (/ping, /ready,

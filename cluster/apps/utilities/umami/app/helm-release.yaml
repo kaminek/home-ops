@@ -30,38 +30,16 @@ spec:
             runAsUser: 1001
             runAsGroup: 1001
             runAsNonRoot: true
-        initContainers:
-          # DB-IP City Lite (CC BY 4.0, "IP geolocation by DB-IP"): has cities
-          # the bundled GeoLite2 lacks; regions stay empty (no iso codes).
-          # ponytail: fetched once per pod start, refreshed only on restart;
-          # falls back to bundled GeoLite2 if db-ip is unreachable
-          geo:
-            image: &image
+        containers:
+          main:
+            image:
               repository: ghcr.io/umami-software/umami
               tag: 3.5.0
-            command: ["sh", "-c"]
-            args:
-              - |
-                set -u
-                cur=$(date +%Y-%m)
-                y=$(date +%Y); m=$(date +%m); m=${m#0}
-                if [ "$m" -eq 1 ]; then prev="$((y-1))-12"; else prev="$y-$(printf %02d $((m-1)))"; fi
-                for v in "$cur" "$prev"; do
-                  if wget -q -T 60 -O - "https://download.db-ip.com/free/dbip-city-lite-$v.mmdb.gz" | gunzip > /geo/city.mmdb.tmp && [ -s /geo/city.mmdb.tmp ]; then
-                    mv /geo/city.mmdb.tmp /geo/city.mmdb; echo "db-ip $v"; exit 0
-                  fi
-                done
-                echo "db-ip download failed, using bundled GeoLite2"
-                cp /app/geo/GeoLite2-City.mmdb /geo/city.mmdb
-            securityContext: &securityContext
+            securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
               capabilities:
                 drop: ["ALL"]
-        containers:
-          main:
-            image: *image
-            securityContext: *securityContext
             env:
               DATABASE_URL:
                 valueFrom:
@@ -84,9 +62,10 @@ spec:
               # ad blockers drop /api/send: tracker posts here instead, gateway
               # rewrites it back (next's own rewrite is baked at image build)
               COLLECT_API_ENDPOINT: /api/k
-              # real client ip for geo, set by envoy from the TCP peer
-              CLIENT_IP_HEADER: X-Envoy-External-Address
-              GEOLITE_DB_PATH: /geo/city.mmdb
+              # real client ip, set by cloudflare
+              CLIENT_IP_HEADER: CF-Connecting-IP
+              # region/city come from cloudflare visitor location headers
+              # (managed transform); bundled GeoLite2 is the fallback
             probes:
               liveness: &probe
                 enabled: true
@@ -109,16 +88,9 @@ spec:
             resources:
               requests:
                 cpu: 50m
-                memory: 384Mi
+                memory: 256Mi
               limits:
-                # geo db (~120MB) is loaded fully into memory
-                memory: 1Gi
-    persistence:
-      geo:
-        type: emptyDir
-        sizeLimit: 512Mi
-        globalMounts:
-          - path: /geo
+                memory: 512Mi
     service:
       main:
         controller: main

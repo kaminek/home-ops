@@ -75,8 +75,8 @@ spec:
               LOGIN_RATELIMIT_SECONDS: "60"
               LOGIN_RATELIMIT_MAX_BURST: "5"
               DISABLE_ICON_DOWNLOAD: "true"
-              # set by envoy from the TCP peer; XFF and X-Real-IP pass through client-controlled
-              IP_HEADER: X-Envoy-External-Address
+              # set by cloudflare; origin 443 only accepts cloudflare ranges (terraform)
+              IP_HEADER: CF-Connecting-IP
               # envoy reaches same-node pods from the node's public ip, which
               # "local" doesn't trust; node ips = cluster.kaminek.me (terraform)
               IP_HEADER_TRUSTED_PROXIES: 10.0.0.0/8,94.237.57.144/32,94.237.51.220/32,83.136.254.148/32

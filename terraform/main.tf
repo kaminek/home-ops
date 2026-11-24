@@ -128,14 +128,20 @@ resource "upcloud_firewall_rules" "nodes" {
     source_address_end     = "1.0.0.1"
   }
 
-  firewall_rule {
-    action                 = "accept"
-    comment                = "Allow HTTPS traffic"
-    destination_port_start = "443"
-    destination_port_end   = "443"
-    direction              = "in"
-    family                 = "IPv4"
-    protocol               = "tcp"
+  # origin lock: apps are proxied by cloudflare (external-dns --cloudflare-proxied)
+  dynamic "firewall_rule" {
+    for_each = sort(data.cloudflare_ip_ranges.this.ipv4_cidrs)
+    content {
+      action                 = "accept"
+      comment                = "Allow HTTPS from Cloudflare"
+      destination_port_start = "443"
+      destination_port_end   = "443"
+      direction              = "in"
+      family                 = "IPv4"
+      protocol               = "tcp"
+      source_address_start   = cidrhost(firewall_rule.value, 0)
+      source_address_end     = cidrhost(firewall_rule.value, -1)
+    }
   }
 
   # tailscaled listens on 41641; wireguard and STUN replies both land there.
@@ -196,4 +202,25 @@ resource "cloudflare_dns_record" "cluster" {
   type    = "A"
   proxied = false
   ttl     = 60
+}
+
+# Zone: settings proxied traffic depends on
+resource "cloudflare_zone_setting" "this" {
+  for_each = {
+    ssl              = "strict" # origin only listens on 443 (le wildcard), flexible = outage
+    security_level   = "medium" # "under_attack" serves js challenges the bitwarden apps can't solve
+    always_use_https = "on"
+    min_tls_version  = "1.2"
+  }
+
+  zone_id    = local.cloudflare_zone_id
+  setting_id = each.key
+  value      = each.value
+}
+
+# js challenges break native clients (bitwarden apps, github webhooks), and on
+# the free plan bot fight mode can't be skipped per host/path
+resource "cloudflare_bot_management" "this" {
+  zone_id    = local.cloudflare_zone_id
+  fight_mode = false
 }
