@@ -3,24 +3,6 @@ locals {
   flavour            = "DEV-2xCPU-8GB"
   region             = "uk-lon1"
   cloudflare_zone_id = data.sops_file.secrets.data.cloudflare_zone_id
-  # https://www.cloudflare.com/ips-v4
-  cloudflare_ipv4 = [
-    "173.245.48.0/20",
-    "103.21.244.0/22",
-    "103.22.200.0/22",
-    "103.31.4.0/22",
-    "141.101.64.0/18",
-    "108.162.192.0/18",
-    "190.93.240.0/20",
-    "188.114.96.0/20",
-    "197.234.240.0/22",
-    "198.41.128.0/17",
-    "162.158.0.0/15",
-    "104.16.0.0/13",
-    "104.24.0.0/14",
-    "172.64.0.0/13",
-    "131.0.72.0/22",
-  ]
 }
 
 resource "upcloud_network" "private_network" {
@@ -148,7 +130,7 @@ resource "upcloud_firewall_rules" "nodes" {
 
   # origin lock: apps are proxied by cloudflare (external-dns --cloudflare-proxied)
   dynamic "firewall_rule" {
-    for_each = local.cloudflare_ipv4
+    for_each = sort(data.cloudflare_ip_ranges.this.ipv4_cidrs)
     content {
       action                 = "accept"
       comment                = "Allow HTTPS from Cloudflare"
@@ -220,4 +202,25 @@ resource "cloudflare_dns_record" "cluster" {
   type    = "A"
   proxied = false
   ttl     = 60
+}
+
+# Zone: settings proxied traffic depends on
+resource "cloudflare_zone_setting" "this" {
+  for_each = {
+    ssl              = "strict" # origin only listens on 443 (le wildcard), flexible = outage
+    security_level   = "medium" # "under_attack" serves js challenges the bitwarden apps can't solve
+    always_use_https = "on"
+    min_tls_version  = "1.2"
+  }
+
+  zone_id    = local.cloudflare_zone_id
+  setting_id = each.key
+  value      = each.value
+}
+
+# js challenges break native clients (bitwarden apps, github webhooks), and on
+# the free plan bot fight mode can't be skipped per host/path
+resource "cloudflare_bot_management" "this" {
+  zone_id    = local.cloudflare_zone_id
+  fight_mode = false
 }
