@@ -224,3 +224,18 @@ resource "cloudflare_bot_management" "this" {
   zone_id    = local.cloudflare_zone_id
   fight_mode = false
 }
+
+# cf-ipcountry/cf-region/cf-ipcity request headers, umami reads them for geo
+# adopt what was set in the dashboard
+import {
+  to = cloudflare_managed_transforms.this
+  id = local.cloudflare_zone_id
+}
+
+resource "cloudflare_managed_transforms" "this" {
+  zone_id = local.cloudflare_zone_id
+  managed_request_headers = [
+    { id = "add_visitor_location_headers", enabled = true },
+  ]
+  managed_response_headers = []
+}
