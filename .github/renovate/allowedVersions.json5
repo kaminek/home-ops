@@ -10,6 +10,11 @@
       "matchDatasources": ["docker"],
       "matchPackagePatterns": ["postgresql"],
       "allowedVersions": "<17"
+    },
+    {
+      // match the gateway-api cilium is built against (go.mod), bump with cilium
+      "matchPackageNames": ["gateway-api", "kubernetes-sigs/gateway-api"],
+      "allowedVersions": "<1.7.0"
     }
   ]
 }
