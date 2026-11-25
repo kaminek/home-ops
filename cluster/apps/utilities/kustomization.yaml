@@ -14,3 +14,4 @@ resources:
   - umami/ks.yaml
   - twenty/ks.yaml
   - hajimari/ks.yaml
+  - hermes-agent/ks.yaml
