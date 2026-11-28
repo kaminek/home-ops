@@ -177,7 +177,18 @@ spec:
             backendRefs: *backend
             filters:
               - *hsts
-          # ponytail: rest of app behind oauth2-proxy-kalimet; api keys/webhooks from outside need public /rest, /graphql, /webhooks
+          # rest api (records + /rest/metadata) public: twenty checks the api key
+          # on every call. /graphql stays gated, it also serves signup/login
+          - matches:
+              - path:
+                  type: PathPrefix
+                  value: /rest/
+            backendRefs: *backend
+            filters:
+              - *hsts
+            timeouts:
+              request: 0s # envoy default is 15s
+          # ponytail: rest of app behind oauth2-proxy-kalimet; webhooks from outside need public /webhooks
           - backendRefs: *backend
             filters:
               - type: ExternalAuth
